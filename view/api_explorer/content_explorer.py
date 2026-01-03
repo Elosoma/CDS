@@ -82,11 +82,11 @@ class content_list(QWidget):
 
         # Pestañas y sus metodos asociados.
         resources = {
-            "Clases": (api.get_classes, api.get_class, format_class),
-            "Razas": (api.get_races, api.get_race, format_race),
-            "Conjuros": (api.get_spells, api.get_spell, format_spell),
-            "Habilidades": (api.get_skills, api.get_skill, format_skill),
-            "Equipamiento": (api.get_equipment, api.get_equip, format_equipment),
+            "Classes": (api.get_classes, api.get_class, format_class),
+            "Races": (api.get_races, api.get_race, format_race),
+            "Spells": (api.get_spells, api.get_spell, format_spell),
+            "Skills": (api.get_skills, api.get_skill, format_skill),
+            "Equipment": (api.get_equipment, api.get_equip, format_equipment),
         }
 
         # Bucle de creación de tabs.

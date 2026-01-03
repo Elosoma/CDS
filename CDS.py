@@ -4,7 +4,7 @@ import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow
 
 # Referencias
-from view.api_explorer.content_explorer import content_list
+from view.ui import GestorRol
 from model.api_2014 import DnDAPI
 
 
@@ -17,7 +17,7 @@ class Application(QMainWindow):
         self.resize(1000, 700)
 
         self.api = DnDAPI()
-        self.explorer = content_list(self.api)
+        self.explorer = GestorRol(self.api)
 
         self.setCentralWidget(self.explorer)
 
