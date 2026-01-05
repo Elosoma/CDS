@@ -1,0 +1,137 @@
+    # ------------------ TAB 2: LISTA ------------------
+    def tab_lista(self):
+        tab = QWidget()
+        layout = QHBoxLayout()
+
+        lista = QListWidget()
+        lista.addItems([
+            "Guerrero", "Mago", "Pícaro", "Clérigo",
+            "Bárbaro", "Paladín", "Explorador"
+        ])
+
+        detalle = QLabel(
+            "Selecciona una clase para ver su descripción.\n\n"
+            "Ejemplo:\n"
+            "Guerrero: Combatiente especializado en armas y armaduras."
+        )
+        detalle.setWordWrap(True)
+
+        layout.addWidget(lista, 1)
+        layout.addWidget(detalle, 2)
+
+        tab.setLayout(layout)
+        return tab
+
+    # ------------------ TAB 3: PERSONAJE ------------------
+    def tab_personaje(self):
+        tab = QWidget()
+        layout = QVBoxLayout()
+
+        info = QLabel("Elena la Vagabunda – Nivel 6 (Maga)")
+        info.setStyleSheet("font-size: 16px; font-weight: bold;")
+
+        stats = QGroupBox("Estadísticas")
+        form = QFormLayout()
+
+        for stat, value in [
+            ("Fuerza", 10),
+            ("Destreza", 18),
+            ("Constitución", 14),
+            ("Inteligencia", 12),
+            ("Sabiduría", 11),
+            ("Carisma", 14),
+        ]:
+            spin = QSpinBox()
+            spin.setValue(value)
+            spin.setMaximum(30)
+            form.addRow(stat, spin)
+
+        stats.setLayout(form)
+
+        layout.addWidget(info)
+        layout.addWidget(stats)
+        layout.addStretch()
+
+        tab.setLayout(layout)
+        return tab
+
+    # ------------------ TAB 4: CAMPAÑA ------------------
+    def tab_campaña(self):
+        tab = QWidget()
+        layout = QHBoxLayout()
+
+        personajes = QListWidget()
+        personajes.addItems([
+            "Aranil (Mago)",
+            "Thorn (Guerrero)",
+            "Elena (Pícara)",
+            "Korgan (Clérigo)"
+        ])
+
+        recursos = QGroupBox("Recursos de la Campaña")
+        form = QFormLayout()
+
+        vida = QSpinBox()
+        vida.setMaximum(999)
+        vida.setValue(58)
+
+        hechizos = QSpinBox()
+        hechizos.setMaximum(99)
+        hechizos.setValue(7)
+
+        form.addRow("Vida del grupo", vida)
+        form.addRow("Hechizos disponibles", hechizos)
+
+        recursos.setLayout(form)
+
+        layout.addWidget(personajes, 1)
+        layout.addWidget(recursos, 1)
+
+        tab.setLayout(layout)
+        return tab
+    
+
+
+    
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QHBoxLayout, QFrame, QLabel, QStackedWidget
+from PyQt6.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve
+import sys
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Pestaña Deslizable PyQt6")
+        self.setGeometry(100, 100, 800, 600)
+
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+
+        self.layout = QHBoxLayout(self.central_widget)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(0)
+
+        # --- Panel Lateral (Sidebar) ---
+        self.sidebar = QFrame()
+        self.sidebar.setFixedWidth(200) # Ancho inicial
+        self.sidebar.setStyleSheet("background-color: #f0f0f0;")
+        self.sidebar_layout = QHBoxLayout(self.sidebar)
+        self.sidebar_layout.addWidget(QLabel("Menú Lateral"))
+        self.sidebar.hide() # Empieza oculto
+
+        # --- Área Principal ---
+        self.main_area = QWidget()
+        self.main_layout = QHBoxLayout(self.main_area)
+        self.main_layout.addWidget(QLabel("Contenido Principal"))
+
+        # --- Botón para Toggle ---
+        self.toggle_button = QPushButton("☰")
+        self.toggle_button.setFixedSize(40, 40)
+        self.toggle_button.clicked.connect(self.toggle_sidebar)
+
+        self.layout.addWidget(self.sidebar)
+        self.layout.addWidget(self.main_area)
+        self.layout.addWidget(self.toggle_button) # Botón fuera del layout principal para control
+
+        # Animación
+        self.animation = QPropertyAnimation(self.sidebar, b"geometry")
+        self.animation.setDuration(300)

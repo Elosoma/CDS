@@ -1,4 +1,4 @@
-'''Documento de gestión de los formatos, del json que devuelve la api, se da un formato visual más comodo para el usuario.'''
+'''Documento de gestión de formato, extrae datos de la db y los maqueta para mostrarlos en la interfaz gráfica.'''
 from model.api_2014 import DnDAPI
 
 def format_class_levels(levels: list[dict]) -> str:
@@ -99,20 +99,9 @@ def format_class(data: dict) -> str:
 
 
 
-# DESCRIPCIÓN : Descripción y niveles superiore.
-
-
-'''
-  "subclasses": [
-    {
-      "index": "berserker",
-      "name": "Berserker",
-      "url": "/api/2014/subclasses/berserker"
-    }
-  ],
-}'''
-
 # <---> <---> <---> <---> <---> <--->
+
+
 
 def format_race(data: dict) -> str:
     lines = []
@@ -180,7 +169,11 @@ def format_race(data: dict) -> str:
 
     return "\n".join(lines)
 
+
+
 # <---> <---> <---> <---> <---> <--->
+
+
 
 def format_spell(data: dict) -> str:
     lines = []
@@ -214,7 +207,11 @@ def format_spell(data: dict) -> str:
 
     return "\n".join(lines)
 
+
+
 # <---> <---> <---> <---> <---> <--->
+
+
 
 def format_skill(data: dict) -> str:
     lines = []
@@ -236,7 +233,11 @@ def format_skill(data: dict) -> str:
 
     return "\n".join(lines)
 
+
+
 # <---> <---> <---> <---> <---> <--->
+
+
 
 def format_equipment(data: dict) -> str:
     lines = []

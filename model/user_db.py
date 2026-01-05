@@ -42,6 +42,7 @@ class Characters:
     def __init__(self,name:str,
                  
                  race_index:str,
+                 subrace_index:str,
                  class_index:str,
                  level:int,
                  subclass_index:str,
@@ -83,6 +84,7 @@ class Characters:
         self.name = name
 
         self.race_index = race_index
+        self.subrace_index = subrace_index
         self.class_index = class_index
         self.level = level
         self.subclass_index = subclass_index
@@ -338,6 +340,7 @@ class DatabaseManager:
             name TEXT NOT NULL,
 
             race_index TEXT NOT NULL,
+            subrace_index TEXT,
             class_index TEXT NOT NULL,
             level INTEGER NOT NULL,
             subclass_index TEXT,
@@ -616,14 +619,15 @@ class DatabaseManager:
         cursor = self.connection.cursor()
         cursor.execute('''
             INSERT INTO characters (
-                user_id, name, race_index, class_index, level, subclass_index,
+                user_id, name, race_index, subrace_index, class_index, level, subclass_index,
                 hit_points, background_index, background_story, alignment
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             character.user_id,
             character.name,
             character.race_index,
+            character.subrace_index,
             character.class_index,
             character.level,
             character.subclass_index,
@@ -642,12 +646,13 @@ class DatabaseManager:
         cursor = self.connection.cursor()
         cursor.execute('''
             UPDATE characters
-            SET name = ?, race_index = ?, class_index = ?, level = ?, subclass_index = ?,
+            SET name = ?, race_index = ?, subrace_index = ?, class_index = ?, level = ?, subclass_index = ?,
                 hit_points = ?, background_index = ?, background_story = ?, alignment = ?
             WHERE id = ?
         ''', (
             character.name,
             character.race_index,
+            character.subrace_index,
             character.class_index,
             character.level,
             character.subclass_index,
@@ -682,13 +687,14 @@ class DatabaseManager:
             user_id=row[1],
             name=row[2],
             race_index=row[3],
-            class_index=row[4],
-            level=row[5],
-            subclass_index=row[6],
-            hit_points=row[7],
-            background_index=row[8],
-            background_story=row[9],
-            alignment=row[10],
+            subrace_index=row[4],
+            class_index=row[5],
+            level=row[6],
+            subclass_index=row[7],
+            hit_points=row[8],
+            background_index=row[9],
+            background_story=row[10],
+            alignment=row[11],
             object_id=row[0]
         )
 
@@ -706,16 +712,16 @@ class DatabaseManager:
                 user_id=row[1],
                 name=row[2],
                 race_index=row[3],
-                class_index=row[4],
-                level=row[5],
-                subclass_index=row[6],
-                hit_points=row[7],
-                background_index=row[8],
-                background_story=row[9],
-                alignment=row[10],
+                subrace_index=row[4],
+                class_index=row[5],
+                level=row[6],
+                subclass_index=row[7],
+                hit_points=row[8],
+                background_index=row[9],
+                background_story=row[10],
+                alignment=row[11],
                 object_id=row[0]
-            )
-            for row in rows
+            )for row in rows
         ]
 
     def get_all_characters(self):
@@ -734,16 +740,16 @@ class DatabaseManager:
                 user_id=row[1],
                 name=row[2],
                 race_index=row[3],
-                class_index=row[4],
-                level=row[5],
-                subclass_index=row[6],
-                hit_points=row[7],
-                background_index=row[8],
-                background_story=row[9],
-                alignment=row[10],
+                subrace_index=row[4],
+                class_index=row[5],
+                level=row[6],
+                subclass_index=row[7],
+                hit_points=row[8],
+                background_index=row[9],
+                background_story=row[10],
+                alignment=row[11],
                 object_id=row[0]
-            )
-            for row in rows
+            )for row in rows
         ]
 
 
@@ -1252,6 +1258,7 @@ class Debug():
                 user_id=1,
                 name="Thorin",
                 race_index="dwarf",
+                subrace_index="hill-dwarf",
                 class_index="barbarian",
                 level=3,
                 subclass_index=None,
@@ -1264,6 +1271,7 @@ class Debug():
                 user_id=1,
                 name="Eldrin",
                 race_index="elf",
+                subrace_index="",
                 class_index="wizard",
                 level=5,
                 subclass_index="school-of-evocation",
@@ -1377,7 +1385,7 @@ class Debug():
 
                 print (f'\nStats')
                 carac1:Character_stats = self.db.get_character_stats(u.object_id)
-                print (f' -FUE {carac1.str_stat}\n -DEX {carac1.dex_stat}\n -CON {carac1.con_stat}\n -SAB {carac1.wis_stat}\n -CHA {carac1.cha_stat}')
+                print (f' -FUE {carac1.str_stat}\n -DEX {carac1.dex_stat}\n -CON {carac1.con_stat}\n -SAB {carac1.wis_stat}\n -INT {carac1.int_stat}\n -CHA {carac1.cha_stat}')
 
                 print (f'\nSpells')
                 carac2:list = self.db.get_character_spells(u.object_id)
@@ -1434,36 +1442,38 @@ if __name__ == "__main__":
     db = DatabaseManager()
     dg = Debug()
     
-    db.delete_all()
+    #db.delete_all()
 
-    db.create_table_users()
-    dg.seed_users()
-    dg.test_users()
+    #db.create_table_users()
+    #dg.seed_users()
+    #dg.test_users()
 
     #--------------------
-    db.create_table_characters()
-    db.create_table_character_stats()
-    db.create_table_character_spells()
-    db.create_table_character_feats()
-    db.create_table_character_equipment()
+    #db.create_table_characters()
+    #db.create_table_character_stats()
+    #db.create_table_character_spells()
+    #db.create_table_character_feats()
+    #db.create_table_character_equipment()
 
-    dg.seed_characters()
-    dg.seed_character_stats()
-    dg.seed_character_spells()
-    dg.seed_character_feats()
-    dg.seed_character_equipment()
+    #dg.seed_characters()
+    #dg.seed_character_stats()
+    #dg.seed_character_spells()
+    #dg.seed_character_feats()
+    #dg.seed_character_equipment()
     
-    dg.test_characters()
+    #dg.test_characters()
 
     #--------------------
-    db.create_table_campaigns()
-    db.create_table_campaign_characters()
+    #db.create_table_campaigns()
+    #db.create_table_campaign_characters()
 
-    dg.seed_campaigns()
-    dg.seed_campaign_characters()
+    #dg.seed_campaigns()
+    #dg.seed_campaign_characters()
 
-    dg.test_campaigns()
+    #dg.test_campaigns()
 
     #--------------------
 
-    
+    #db.create_table_rulebooks()
+    #dg.seed_rulebooks()
+    #dg.test_rulebooks()

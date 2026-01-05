@@ -7,6 +7,101 @@ from PyQt6.QtWidgets import (
 # Referencias
 #from view.characters.character_tab import CharacterTab
 from model.user_db import DatabaseManager, Characters
+from model.api_2014 import DnDAPI
+
+
+class LoadCharacterSheet():
+    def __init__(self, character_index):
+        super().__init__()
+
+        self.api = DnDAPI()
+        self.db = DatabaseManager()
+        self.character_index = character_index
+
+
+    def get_main_format(self):
+        '''Pestaña info general'''
+        lines = []
+        character = self.db.get_character(self.character_index)
+
+        lines.append(character.name)
+
+        class_name = self.api.get_class(character.class_index)['name']
+        race_name = self.api.get_race(character.race_index)['name']
+        subrace_name = self.api.get_subrace(character.subrace_index)['name']
+        lines.append(f'{class_name} {race_name} {subrace_name}')
+        lines.append()
+        
+        stats = self.db.get_character_stats(self.character_index)
+        lines.append(f'STR {stats.str_stat}| DEX {stats.dex_stat}| CON {stats.con_stat}| INT {stats.int_stat}| WIS {stats.wis_stat}| CHA {stats.cha_stat}')
+        lines.append()
+
+
+    def get_feats_format(self):
+        '''Pestaña rasgos'''
+        lines = []
+        feats = self.db.get_character_feats(self.character_index)
+
+        lines.append(f'FEATS')
+        for feat in feats:
+            feat_api = self.api.get_feat(feat.feat_index)
+            lines.append(f'-{feat_api['name']}')
+
+            desc = feat_api['desc']
+            for line in desc:
+                lines.append(line)
+        lines.append()
+
+        race_index = self.db.get_character(self.character_index).race_index
+        race = self.api.get_race(race_index)
+
+        lines.append(f'RACIAL TRAITS')
+        for trait_list in race['traits']:
+            lines.append(f'-{trait_list['name']}')
+
+            desc = self.api.get_trait(trait_list['index'])['desc']
+            for line in desc:
+                lines.append(line)
+        lines.append()
+
+        class_index = self.db.get_character(self.character_index).class_index
+        level = self.db.get_character(self.character_index).level
+        _class = self.api.get_class(class_index)
+
+        lines.append(f'CLASS TRAITS')
+        for trait_list in _class['traits']:
+            lines.append(f'{trait_list['name']}')
+
+            desc = self.api.get_trait(trait_list['index'])['desc']
+            for line in desc:
+                lines.append(line)
+        lines.append()
+
+
+
+    def get_spells_format(self):
+        # Pestaña conjuros
+        self.db.get_character_spells(self.character_index)
+
+
+
+    def get_equipment_format(self):
+        # Pestaña conjuros
+        lines = []
+        spells = self.db.get_character_spells(self.character_index)
+
+        lines.append(f'SPELLS')
+        for spell in spells:
+            spell_api = self.api.get_spell(spell.spell_index)
+            lines.append(f'-{spell_api['name']}')
+
+            desc = spell_api['desc']
+            for line in desc:
+                lines.append(line)
+
+        
+
+
 
 
 
@@ -134,6 +229,22 @@ class CharacterDetail(QWidget):
         )
 
         self.text.setPlainText(content)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

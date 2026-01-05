@@ -1,5 +1,5 @@
-'''Exports'''
+'''Imports'''
 
-from .ui import GestorRol
+from .view_widget import ViewWidget
 
-__version__ = "0.1.0"
+__all__ = ['ViewWidget']

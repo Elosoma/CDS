@@ -1,24 +1,18 @@
 '''Archivo ejecutable, actua como una raíz para imports y referencias'''
-# Librerias
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow
 
-# Referencias
-from view.ui import GestorRol
-from model.api_2014 import DnDAPI
+from view import ViewWidget
 
 
 class Application(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # Detalles de pestaña.
-        self.setWindowTitle("CDS")
         self.resize(1000, 700)
-
-        self.api = DnDAPI()
-        self.explorer = GestorRol(self.api)
-
+        self.setWindowTitle("CDS")
+   
+        self.explorer = ViewWidget()
         self.setCentralWidget(self.explorer)
 
 
