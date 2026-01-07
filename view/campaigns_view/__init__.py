@@ -1,5 +1,5 @@
 '''Imports'''
 
-from .campaigns_widget import CampaignsWidget
+from .campaigns_tab import CampaignWidget
 
-__all__ = ['CampaignsWidget']
+__all__ = ['CampaignWidget']

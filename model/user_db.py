@@ -980,7 +980,7 @@ class DatabaseManager:
     def get_campaign(self, object_id):
         '''Comando, SELECT FROM campaigns, mediante el id dado.'''
         cursor = self.connection.cursor()
-        cursor.execute('''SELECT FROM campaigns WHERE id = ?''', (object_id))
+        cursor.execute('''SELECT * FROM campaigns WHERE id = ?''', (object_id,))
 
         # Lo convierte y lo devuelve.
         rows = cursor.fetchall()
@@ -994,7 +994,7 @@ class DatabaseManager:
     def get_user_campaigns(self, user_id):
         '''Comando, SELECT FROM campaigns, mediante el id del user dado.'''
         cursor = self.connection.cursor()
-        cursor.execute('''SELECT FROM campaigns WHERE user_id = ?''', (user_id))
+        cursor.execute('''SELECT * FROM campaigns WHERE user_id = ?''', (user_id,))
 
         # Los convierte y los devuelve como una lista.
         rows = cursor.fetchall()
@@ -1064,31 +1064,37 @@ class DatabaseManager:
         ''', (campaign_id, character_id))
         row = cursor.fetchone()
         cursor.close()
-
-        if row is []:
+        
+        if row is None:
             return None
 
-        return {
-            "campaign_id": row[0],
-            "character_id": row[1],
-            "health_points": row[2],
-            "notes": row[3]
-        }
+        return Campaign_characters(
+            campaign_id = campaign_id,
+            character_id = character_id,
+            health_points = row[2] or 0,
+            notes = row[3] or ""
+        )
 
     def get_campaign_characters(self, campaign_id):
         '''SELECT characters in a campaign'''
         cursor = self.connection.cursor()
+        id = int(campaign_id)
         cursor.execute('''
             SELECT * FROM campaign_characters
             WHERE campaign_id = ?
-        ''', (campaign_id,))
+        ''', (id,))
         rows = cursor.fetchall()
         cursor.close()
 
         if rows is []:
             return None
 
-        return [Campaign_characters(row[2], row[3], row[1], row[0]) for row in rows]
+        return [Campaign_characters(
+            campaign_id = campaign_id,
+            character_id = row[1],
+            health_points = row[2] or 0,
+            notes = row[3] or ""
+        )for row in rows]
 
     def get_character_campaigns(self, character_id):
         '''SELECT campaigns where character is present'''
@@ -1333,13 +1339,20 @@ class Debug():
             self.db.add_campaign(campaign)
 
     def seed_campaign_characters(self):
-        campaign_characters = [
-            (1, 1, 34, "Herido"),
-            (1, 2, 26, "Sin daño")
-        ]
+        c1 = Campaign_characters (
+            health_points=34, 
+            notes="100 - Gold", 
+            campaign_id=1,
+            character_id=1)
+        c2 = Campaign_characters (
+            health_points=26, 
+            notes="Spellbook and backpack",
+            campaign_id=1,
+            character_id=2)
+        campaign_characters = [c1,c2]
 
-        for campaign_id, character_id, hp, notes in campaign_characters:
-            self.db.add_campaign_character(campaign_id, character_id, hp, notes)
+        for char in campaign_characters:
+            self.db.add_campaign_character(char.campaign_id, char.character_id, char.health_points, char.notes)
 
 
     def seed_rulebooks(self):
@@ -1414,10 +1427,12 @@ class Debug():
             for u in data:
                 u:Campaigns
                 print (f'{u.object_id} - {u.name}')
-                camp:list = self.db.get_campaign_characters(u.object_id)
+                camp = self.db.get_campaign_characters(u.object_id)
+
                 for c in camp:
                     c:Campaign_characters
-                    print (f'  -{c.health_points} - {c.notes}\n')
+                    ch:Characters = self.db.get_character(c.character_id)
+                    print (f'{ch.name} |{c.character_id}| hp:{c.health_points} - nt:{c.notes}\n')
                 print ("/" * 40)
                 print ()
             print ("-" * 40)
@@ -1442,7 +1457,10 @@ if __name__ == "__main__":
     db = DatabaseManager()
     dg = Debug()
     
-    #db.delete_all()
+    db.delete_all()
+    db.create_tables()
+    dg.seed_all()
+    dg.dispaly_all()
 
     #db.create_table_users()
     #dg.seed_users()

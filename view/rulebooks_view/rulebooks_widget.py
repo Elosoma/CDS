@@ -9,7 +9,7 @@ from model.user_db import DatabaseManager
 
 class RulebooksWidget(QWidget):
     '''Muestra contenido en bruto de la base de datos local de los libros de reglas'''
-    def __init__(self, db:DatabaseManager):
+    def __init__(self, db:DatabaseManager, current_user = 1):
         super().__init__()
         self.db = db
         layout = QVBoxLayout()
@@ -26,6 +26,7 @@ class RulebooksWidget(QWidget):
         btn_scroll = QScrollArea()
         btn_list = QVBoxLayout()
         btn_widget = QWidget()
+        
         rulebooks = {
             "Ability Scores": ("ability_scores"), 
             "Alignments": ("alignments"), 
@@ -52,6 +53,7 @@ class RulebooksWidget(QWidget):
         }
 
         self.detail = QTextEdit()
+        self.detail.setReadOnly(True)
         for name, (index) in rulebooks.items():
             boton = QPushButton(name)
             boton.clicked.connect(lambda: self.change_detail(index))

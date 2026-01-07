@@ -5,7 +5,7 @@ from model.user_db import DatabaseManager
 
 from view.home_view import HomeWidget
 from view.characters.character_tab import CharacterTab
-from view.campaigns_view import CampaignsWidget
+from view.campaigns_view.campaigns_tab import CampaignWidget
 from view.contenet_view.content_widget import ContentWidget
 from view.rulebooks_view import RulebooksWidget
 
@@ -21,7 +21,7 @@ class ViewWidget(QMainWindow):
         self.setCentralWidget(self.tabs)
 
         self.tabs.addTab(HomeWidget(), "Home")
-        self.tabs.addTab(CharacterTab(db,api), "Characters")
-        self.tabs.addTab(CampaignsWidget(), "Campaigns")
-        self.tabs.addTab(ContentWidget(api), "Content")
-        self.tabs.addTab(RulebooksWidget(db), "Rulebooks")
+        #self.tabs.addTab(CharacterTab(db,api, 1), "Characters")
+        self.tabs.addTab(CampaignWidget(db, 1), "Campaigns")
+        #self.tabs.addTab(ContentWidget(api), "Content")
+        self.tabs.addTab(RulebooksWidget(db, 1), "Rulebooks")

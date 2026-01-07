@@ -1,137 +1,375 @@
-    # ------------------ TAB 2: LISTA ------------------
-    def tab_lista(self):
-        tab = QWidget()
-        layout = QHBoxLayout()
+from PyQt6.QtGui import QIcon,QPixmap
+from PyQt6.QtCore import Qt,QDateTime,QDate
+from PyQt6.QtWidgets import (
+    QLayout,
+    QWidget,
+    QSizePolicy,
+    QVBoxLayout,
+    QLabel,
+    QListWidget,
+    QHBoxLayout,
+    QPushButton,
+    QFormLayout,
+    QLineEdit,
+    QMessageBox,
+    QTextEdit,
+    QDoubleSpinBox,
+    QDateEdit,
+    QDateTimeEdit,
+    QListWidgetItem,
+    QComboBox,
+    QStackedLayout,
+    QApplication
+)
 
-        lista = QListWidget()
-        lista.addItems([
-            "Guerrero", "Mago", "Pícaro", "Clérigo",
-            "Bárbaro", "Paladín", "Explorador"
-        ])
+import datetime, json, sys, re
+from database_manager import (
+    DatabaseManager,
+    User,
+    Note,
+    Reminder,
+    Birthday,
+    Accounting,
+    AccountMove,
+    Food,
+    Diet,
+    Exercise,
+    Routine
+    )
 
-        detalle = QLabel(
-            "Selecciona una clase para ver su descripción.\n\n"
-            "Ejemplo:\n"
-            "Guerrero: Combatiente especializado en armas y armaduras."
-        )
-        detalle.setWordWrap(True)
 
-        layout.addWidget(lista, 1)
-        layout.addWidget(detalle, 2)
+'''
+ ##   ##  #######  ####     ####       ####    #####   ##   ##  #######            #####     ####   ######   #######  #######  ##   ##
+ ##   ##   ##   #   ##       ##       ##  ##  ##   ##  ### ###   ##   #           ##   ##   ##  ##   ##  ##   ##   #   ##   #  ###  ##
+ ##   ##   ## #     ##       ##      ##       ##   ##  #######   ## #             #        ##        ##  ##   ## #     ## #    #### ##
+ ## # ##   ####     ##       ##      ##       ##   ##  #######   ####              #####   ##        #####    ####     ####    ## ####
+ #######   ## #     ##   #   ##   #  ##       ##   ##  ## # ##   ## #                  ##  ##        ## ##    ## #     ## #    ##  ###
+ ### ###   ##   #   ##  ##   ##  ##   ##  ##  ##   ##  ##   ##   ##   #           ##   ##   ##  ##   ##  ##   ##   #   ##   #  ##   ##
+ ##   ##  #######  #######  #######    ####    #####   ##   ##  #######            #####     ####   #### ##  #######  #######  ##   ##
+'''
 
-        tab.setLayout(layout)
-        return tab
+class WelcomeScreen(QWidget):
+    def __init__(self, switch_screen):
+        super().__init__()
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.wellcome())
 
-    # ------------------ TAB 3: PERSONAJE ------------------
-    def tab_personaje(self):
-        tab = QWidget()
-        layout = QVBoxLayout()
+        button = QPushButton("INICIO DE SESIÓN")
+        button.setStyleSheet("font-size: 20px;")
+        button.clicked.connect(lambda: switch_screen(2))
+        layout.addWidget(button)
 
-        info = QLabel("Elena la Vagabunda – Nivel 6 (Maga)")
-        info.setStyleSheet("font-size: 16px; font-weight: bold;")
+    def wellcome(self):
+        widget = QWidget()
+        layout = QHBoxLayout(widget)
+        layout.setAlignment(Qt.AlignCenter)
 
-        stats = QGroupBox("Estadísticas")
-        form = QFormLayout()
+        img = QLabel()
+        img.setPixmap(QPixmap("res\\frame_wellcome.png"))
+        layout.addWidget(img)
+        return widget
 
-        for stat, value in [
-            ("Fuerza", 10),
-            ("Destreza", 18),
-            ("Constitución", 14),
-            ("Inteligencia", 12),
-            ("Sabiduría", 11),
-            ("Carisma", 14),
-        ]:
-            spin = QSpinBox()
-            spin.setValue(value)
-            spin.setMaximum(30)
-            form.addRow(stat, spin)
+'''
+ ####      #####     ####             ####    ##   ##
+  ##      ##   ##   ##  ##             ##     ###  ##
+  ##      ##   ##  ##                  ##     #### ##
+  ##      ##   ##  ##                  ##     ## ####
+  ##   #  ##   ##  ##  ###             ##     ##  ###
+  ##  ##  ##   ##   ##  ##             ##     ##   ##
+ #######   #####     #####            ####    ##   ##
+'''
 
-        stats.setLayout(form)
+class LogInScreen(QWidget):
+    def __init__(self,
+                 switch_screen,
+                 db:DatabaseManager,
+                 set_current_user):
+        super().__init__()
 
-        layout.addWidget(info)
-        layout.addWidget(stats)
+        self.db = db
+        self.switch_screen = switch_screen
+        self.set_current_user = set_current_user
+        layout = QFormLayout(self)
+
+        # Formulario de email y de contrasseña censurada
+        self.mail_input = QLineEdit()
+        self.password_input = QLineEdit()
+        self.password_input.setEchoMode(QLineEdit.Password)
+
+        # Añade las filas con los nombres de los campos
+        layout.addRow("Correo: ", self.mail_input)
+        layout.addRow("Contraseña: ", self.password_input)
+
+        # Botón de inicio de sesión (Comprueba los datos)
+        login_button = QPushButton("Iniciar sesión")
+        login_button.clicked.connect(self.handle_login)
+        layout.addWidget(login_button)
+
+        # Botón registro de usuario (Cambia de pestaña)
+        register_button = QPushButton("Registrar usuario")
+        register_button.clicked.connect(lambda: switch_screen(2))
+        layout.addWidget(register_button)    
+
+    def handle_login(self):
+        mail = self.mail_input.text()
+        password = self.password_input.text()
+
+        # Comprueba los diferentes datos
+        if is_mail(mail):
+            user = self.db.get_user_mail(mail)
+            if user:
+                if user.password == password:
+                    # Cambiamos el usuario actual y redirige a las pestaña principal
+                    self.set_current_user(user)
+                    self.switch_screen(0)
+                else:
+                    QMessageBox.warning(self, "Datos Incorrectos", "Revise que los datos introducidos sean correctos.")
+            else:
+                QMessageBox.warning(self, "Datos Incorrectos", "Correo no vinculado a una cuenta existente.")
+        else:
+            QMessageBox.warning(self, "Datos Incorrectos", "Campo correo inválido.")
+
+'''
+  #####    ####    ##   ##    ####            ##   ##  ######
+ ##   ##    ##     ###  ##   ##  ##           ##   ##   ##  ##
+ #          ##     #### ##  ##                ##   ##   ##  ##
+  #####     ##     ## ####  ##                ##   ##   #####
+      ##    ##     ##  ###  ##  ###           ##   ##   ##
+ ##   ##    ##     ##   ##   ##  ##           ##   ##   ##
+  #####    ####    ##   ##    #####            #####   ####
+'''
+
+class SingUpScreen(QWidget):
+    def __init__(self,
+                 switch_screen,
+                 db:DatabaseManager,
+                 set_current_user):
+        super().__init__()
+
+        self.db = db
+        self.switch_screen = switch_screen
+        self.set_current_user = set_current_user
+        layout = QFormLayout(self)
+
+        # Elementos del formulario
+        self.mail_input = QLineEdit()
+        self.username_input = QLineEdit()
+
+        self.password_input = QLineEdit()
+        self.password_input.setEchoMode(QLineEdit.Password)
+
+        self.confirm_password_input = QLineEdit()
+        self.confirm_password_input.setEchoMode(QLineEdit.Password)
+
+        # Añade las filas con los nombres de los campos
+        layout.addRow("Correo:", self.mail_input)
+        layout.addRow("Usuario:", self.username_input)
+        layout.addRow("Contraseña:", self.password_input)
+        layout.addRow("Confirmar Contraseña:", self.confirm_password_input)
+
+        # Botón de registro
+        register_button = QPushButton("Registrar")
+        register_button.clicked.connect(self.handle_register)
+        layout.addWidget(register_button)
+
+        # Botón de regreso
+        back_button = QPushButton("Iniciar sesión")
+        back_button.clicked.connect(lambda: switch_screen(2))
+        layout.addWidget(back_button)
+
+    def handle_register(self):
+        mail = self.mail_input.text()
+        username = self.username_input.text()
+        password = self.password_input.text()
+        confirm_password = self.confirm_password_input.text()
+
+        # Comprueba que los campos tengan contenido
+        if not mail or not username or not password or not confirm_password:
+            QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
+            return
+
+        # Comprueba que sea un mail válido
+        if not is_mail(mail):
+            QMessageBox.warning(self, "Datos Incorrectos", "Campo correo inválido.")
+            return
+
+        # Comprueba que el mail introducido no este ya registrado
+        if not self.db.get_user_mail(mail):
+            QMessageBox.warning(self, "Error", "El siguiente correo ya se encuentra registrado")
+            return
+
+        # Comprueba que la contraseña y su confirmación sean iguales
+        if password != confirm_password:
+            QMessageBox.warning(self, "Error", "Las contraseñas no coinciden")
+            return
+
+        try:
+            # Intenta crear el usuario y redirige a la pestaña principal
+            user = User(username,mail,password)
+            self.db.add_user(user)
+            QMessageBox.information(self, "Éxito", "Usuario registrado correctamente")
+            
+            self.set_current_user(user)
+            self.switch_screen(0)
+        except Exception as e:
+            # Error no esperado de la db
+            QMessageBox.warning(self, "Error", str(e))
+            return
+
+'''
+ ######   ######    #####   #######   ####    ####     #######            #####     ####   ######   #######  #######  ##   ##
+  ##  ##   ##  ##  ##   ##   ##   #    ##      ##       ##   #           ##   ##   ##  ##   ##  ##   ##   #   ##   #  ###  ##
+  ##  ##   ##  ##  ##   ##   ## #      ##      ##       ## #             #        ##        ##  ##   ## #     ## #    #### ##
+  #####    #####   ##   ##   ####      ##      ##       ####              #####   ##        #####    ####     ####    ## ####
+  ##       ## ##   ##   ##   ## #      ##      ##   #   ## #                  ##  ##        ## ##    ## #     ## #    ##  ###
+  ##       ##  ##  ##   ##   ##        ##      ##  ##   ##   #           ##   ##   ##  ##   ##  ##   ##   #   ##   #  ##   ##
+ ####     #### ##   #####   ####      ####    #######  #######            #####     ####   #### ##  #######  #######  ##   ##
+'''
+
+class ProfileScreen(QWidget):
+    def __init__(self,
+                 switch_screen,
+                 db:DatabaseManager,
+                 get_current_user,
+                 set_current_user):
+        super().__init__()
+
+        self.db = db
+        self.switch_screen = switch_screen
+        self.get_current_user = get_current_user
+        self.set_current_user = set_current_user
+
+        # Layout
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.porfile_icon())
+        
+        self.info_widget = self.user_info()
+        layout.addWidget(self.info_widget)
+
+        self.edit_widget = self.edit_info()
+        layout.addWidget(self.edit_widget)
+        self.edit_widget.hide()
         layout.addStretch()
 
-        tab.setLayout(layout)
-        return tab
+        # Botón volver
+        btn_back = QPushButton('Volver')
+        btn_back.clicked.connect(lambda: switch_screen(0))
+        layout.addWidget(btn_back)
 
-    # ------------------ TAB 4: CAMPAÑA ------------------
-    def tab_campaña(self):
-        tab = QWidget()
-        layout = QHBoxLayout()
+        # Botón editar
+        btn_edit = QPushButton('Editar')
+        btn_edit.clicked.connect(self.handle_edit)
+        layout.addWidget(btn_edit)
 
-        personajes = QListWidget()
-        personajes.addItems([
-            "Aranil (Mago)",
-            "Thorn (Guerrero)",
-            "Elena (Pícara)",
-            "Korgan (Clérigo)"
-        ])
-
-        recursos = QGroupBox("Recursos de la Campaña")
-        form = QFormLayout()
-
-        vida = QSpinBox()
-        vida.setMaximum(999)
-        vida.setValue(58)
-
-        hechizos = QSpinBox()
-        hechizos.setMaximum(99)
-        hechizos.setValue(7)
-
-        form.addRow("Vida del grupo", vida)
-        form.addRow("Hechizos disponibles", hechizos)
-
-        recursos.setLayout(form)
-
-        layout.addWidget(personajes, 1)
-        layout.addWidget(recursos, 1)
-
-        tab.setLayout(layout)
-        return tab
+        # Botón cerrar sesión
+        btn_log_out = QPushButton("Cerrar sesión")
+        btn_log_out.clicked.connect(self.handle_log_out)
+        layout.addWidget(btn_log_out)
     
+    def update(self):
+        current_user = self.get_current_user()
+        user = self.db.get_user(int(current_user['id']))
+        self.lbl_info.setText(f"Usuario: {current_user['username']}\nCorreo: {user.mail if user else ''}")
 
+    def user_info(self):
+        widget = QWidget()
+        widget.setContentsMargins(0,0,0,0)
+        layout = QHBoxLayout(widget)
+        layout.setAlignment(Qt.AlignCenter)
 
+        self.lbl_info = QLabel('username')
+        layout.addWidget(self.lbl_info)
+        return widget
     
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QHBoxLayout, QFrame, QLabel, QStackedWidget
-from PyQt6.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve
-import sys
+    def edit_info(self):
+        widget = QWidget()
+        widget.setContentsMargins(0,0,0,0)
+        layout = QFormLayout(widget)
+        layout.setAlignment(Qt.AlignCenter)
 
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Pestaña Deslizable PyQt6")
-        self.setGeometry(100, 100, 800, 600)
+        self.username_input = QLineEdit()
 
-        self.central_widget = QWidget()
-        self.setCentralWidget(self.central_widget)
+        self.password_input = QLineEdit()
+        self.password_input.setEchoMode(QLineEdit.Password)
 
-        self.layout = QHBoxLayout(self.central_widget)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.setSpacing(0)
+        self.confirm_password_input = QLineEdit()
+        self.confirm_password_input.setEchoMode(QLineEdit.Password)
 
-        # --- Panel Lateral (Sidebar) ---
-        self.sidebar = QFrame()
-        self.sidebar.setFixedWidth(200) # Ancho inicial
-        self.sidebar.setStyleSheet("background-color: #f0f0f0;")
-        self.sidebar_layout = QHBoxLayout(self.sidebar)
-        self.sidebar_layout.addWidget(QLabel("Menú Lateral"))
-        self.sidebar.hide() # Empieza oculto
+        # Añade las filas con los nombres de los campos
+        layout.addRow("Usuario:", self.username_input)
+        layout.addRow("Contraseña:", self.password_input)
+        layout.addRow("Confirmar Contraseña:", self.confirm_password_input)
 
-        # --- Área Principal ---
-        self.main_area = QWidget()
-        self.main_layout = QHBoxLayout(self.main_area)
-        self.main_layout.addWidget(QLabel("Contenido Principal"))
+        # Botón cerrar sesión
+        save_btn = QPushButton("Confirmar")
+        save_btn.clicked.connect(self.handle_save)
+        layout.addWidget(save_btn)
 
-        # --- Botón para Toggle ---
-        self.toggle_button = QPushButton("☰")
-        self.toggle_button.setFixedSize(40, 40)
-        self.toggle_button.clicked.connect(self.toggle_sidebar)
+        # Botón cerrar sesión
+        cancel_btn = QPushButton("Volver")
+        cancel_btn.clicked.connect(self.handle_edit)
+        layout.addWidget(cancel_btn)
+        return widget
 
-        self.layout.addWidget(self.sidebar)
-        self.layout.addWidget(self.main_area)
-        self.layout.addWidget(self.toggle_button) # Botón fuera del layout principal para control
+    def porfile_icon(self):
+        widget = QWidget()
+        layout = QHBoxLayout(widget)
+        layout.setAlignment(Qt.AlignCenter)
 
-        # Animación
-        self.animation = QPropertyAnimation(self.sidebar, b"geometry")
-        self.animation.setDuration(300)
+        lbl_img = QLabel()
+        lbl_img.resize(128,128)
+
+        # Re-escalar la imagen
+        pixmap = QPixmap('res\\icon_2.png')
+        scaled_pixmap = pixmap.scaled(lbl_img.size())
+
+        lbl_img.setPixmap(scaled_pixmap)
+        layout.addWidget(lbl_img)
+        return widget
+
+    def handle_log_out(self):
+        with open("res\\user.json", "w", encoding='utf-8') as file:
+            file.write(f'{json.dumps({"id": "None", "username": "None"})}')
+        self.switch_screen(1) 
+
+    def handle_edit(self):
+        if self.edit_widget.isVisible():
+            self.edit_widget.hide()
+            self.username_input.setText('')
+            self.password_input.setText('')
+            self.confirm_password_input.setText('')
+            self.info_widget.show()
+        else:
+            self.edit_widget.show()
+            self.info_widget.hide()
+
+    def handle_save(self):
+        username = self.username_input.text()
+        password = self.password_input.text()
+        confirm_password = self.confirm_password_input.text()
+
+        # Comprueba que los campos tengan contenido
+        if not username or not password or not confirm_password:
+            QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
+            return
+
+        # Comprueba que la contraseña y su confirmación sean iguales
+        if password != confirm_password:
+            QMessageBox.warning(self, "Error", "Las contraseñas no coinciden")
+            return
+
+        try:
+            # Intenta crear el usuario y redirige a la pestaña principal
+            current_user = self.get_current_user()
+            user = self.db.get_user(int(current_user['id']))
+            self.db.update_user(User(username,user.mail,password))
+            QMessageBox.information(self, "Éxito", "Usuario actualizado correctamente")
+            
+            self.set_current_user(user)
+            self.handle_edit()
+            self.update()
+        except Exception as e:
+            # Error no esperado de la db
+            QMessageBox.warning(self, "Error", str(e))
+            print ("save")
+            return
