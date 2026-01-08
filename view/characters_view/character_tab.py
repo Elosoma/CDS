@@ -1,12 +1,11 @@
 '''Pestaña con tabs que cambian entre diferentes datos de personajes.'''
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QStackedWidget)
 
-# Referencias
-from view.characters.character_list import CharacterList
-from view.characters.character_detail import CharacterDetail
-from view.characters.character_form import CharacterForm
-from model.user_db import DatabaseManager
-from model.api_2014 import DnDAPI
+from view.characters_view.character_list import CharacterList
+from view.characters_view.character_detail import CharacterDetail
+from view.characters_view.character_form import CharacterForm
+from model import DatabaseManager, DnDAPI
+
 
 class CharacterTab(QWidget):
     def __init__(self, database, api, current_user = 1):

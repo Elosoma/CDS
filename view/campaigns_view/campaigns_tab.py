@@ -1,6 +1,4 @@
-from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QStackedWidget
-)
+from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QStackedWidget)
 
 from view.campaigns_view.campaigns_list import CampaignList
 from view.campaigns_view.campaigns_detail import CampaignDetail

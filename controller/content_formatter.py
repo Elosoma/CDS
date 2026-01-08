@@ -1,5 +1,5 @@
 '''Documento de gestión de formato, extrae datos de la db y los maqueta para mostrarlos en la interfaz gráfica.'''
-from model.api_2014 import DnDAPI
+from model import DnDAPI
 
 def format_class_levels(levels: list[dict]) -> str:
     lines = []

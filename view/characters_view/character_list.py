@@ -5,8 +5,8 @@ from PyQt6.QtWidgets import (
     QPushButton, QListWidgetItem
 )
 
-# Referencias
-from model.user_db import DatabaseManager
+from model import DatabaseManager
+
 
 class CharacterList(QWidget):
     '''Muestra la lista de personajes de un usuario y permite crear nuevos u acceder a la pestaña con sus datos.'''
@@ -17,7 +17,7 @@ class CharacterList(QWidget):
         self.parent_tab = parent
 
         self.list = QListWidget()
-        self.new_btn = QPushButton("➕ Nuevo personaje")
+        self.new_btn = QPushButton("➕ New character")
 
         self.list.itemDoubleClicked.connect(self.open_character)
         self.new_btn.clicked.connect(self.new_character)

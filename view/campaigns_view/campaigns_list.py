@@ -2,6 +2,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QListWidget, QPushButton, QListWidgetItem
 )
+
 from model import DatabaseManager
 
 

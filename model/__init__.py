@@ -8,4 +8,8 @@ from .user_db import (
     Campaigns, Campaign_characters
 )
 
-__version__ = "0.1.0"
+__all__ = [
+    'DnDAPI', 'DatabaseManager', 'Users', 'Characters', 
+    'Character_stats', 'Character_spells', 'Character_feats', 
+    'Character_equipment', 'Campaigns', 'Campaign_characters'
+]

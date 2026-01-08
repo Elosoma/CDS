@@ -11,241 +11,125 @@ from model.api_2014 import DnDAPI
 
 
 class LoadCharacterSheet():
-    def __init__(self, character_index):
+    def __init__(self, db:DatabaseManager, api:DnDAPI, character_id):
         super().__init__()
-
-        self.api = DnDAPI()
-        self.db = DatabaseManager()
-        self.character_index = character_index
+        self.db = db
+        self.api = api
+        self.character_id = character_id
 
 
     def get_main_format(self):
-        '''Pestaña info general'''
+        '''Pestaña info general del personaje'''
         lines = []
-        character = self.db.get_character(self.character_index)
+        character = self.db.get_character(self.character_id)
 
-        lines.append(character.name)
+        try:
+            # General
+            race_name = self.api.get_race(character.race_index)['name']
+            class_name = self.api.get_class(character.class_index)['name']
+            lines.append(f'{character.name}\n{race_name}  {class_name} Lvl: {character.level}')
+        except:
+            lines.append("API INFO ERROR")
 
-        class_name = self.api.get_class(character.class_index)['name']
-        race_name = self.api.get_race(character.race_index)['name']
-        subrace_name = self.api.get_subrace(character.subrace_index)['name']
-        lines.append(f'{class_name} {race_name} {subrace_name}')
-        lines.append()
-        
-        stats = self.db.get_character_stats(self.character_index)
-        lines.append(f'STR {stats.str_stat}| DEX {stats.dex_stat}| CON {stats.con_stat}| INT {stats.int_stat}| WIS {stats.wis_stat}| CHA {stats.cha_stat}')
-        lines.append()
+        try:
+            # Stats
+            stats = self.db.get_character_stats(self.character_id)
+            lines.append(f'STR {stats.str_stat}| DEX {stats.dex_stat}| CON {stats.con_stat}| INT {stats.int_stat}| WIS {stats.wis_stat}| CHA {stats.cha_stat}')
+        except:
+            lines.append("DB STATS ERROR")
 
 
-    def get_feats_format(self):
-        '''Pestaña rasgos'''
+        try:
+            # Datos de clase
+            lines.append(f"\n\n{class_name}")
+            lines.append(self.get_classlvl_format(character.class_index, character.subclass_index, character.level))
+        except:
+            lines.append("API CLASS ERROR")
+
+        try:
+            # Datos raciales
+            lines.append(f"\n\n{race_name}")
+            lines.append(self.get_racial_format(character.race_index, character.subrace_index))
+        except:
+            lines.append("API RACE ERROR")
+
+        try:
+            # Datos de trasfondo
+            bg_name = self.api.get_background(character.background_index)["name"]
+            lines.append(f"\n\n{bg_name}")
+            lines.append(self.get_background_format(character.background_index, character.background_story))
+        except:
+            lines.append("API BACKGROUND ERROR")
+        return "\n".join(lines)
+
+
+    def get_classlvl_format(self, ch_class, ch_subclass, ch_lvl):
+        '''Da formato a los datos de clase y subclase'''
         lines = []
-        feats = self.db.get_character_feats(self.character_index)
 
-        lines.append(f'FEATS')
-        for feat in feats:
-            feat_api = self.api.get_feat(feat.feat_index)
-            lines.append(f'-{feat_api['name']}')
+        for i in range(ch_lvl):
+            lvl = i+1
+            lines.append(f'Lvl: {lvl}\n')
+            lvl_features = self.api.get_class_level(ch_class,lvl)["features"]
+            if lvl_features:
+                for feature in lvl_features:
+                    feat = self.api.get_feature(feature["index"])
+                    lines.append(f'   -{feat["name"]}')
+                    for des in feat.get('desc'):
+                        lines.append(f"  {des}")
+                    lines.append("")
+            
+            if ch_subclass != None:
+                sublvl_features = self.api.get_subclass_level(ch_subclass,lvl)["features"]
+                if sublvl_features:
+                    for feature in sublvl_features:
+                        feat = self.api.get_feature(feature["index"])
+                        lines.append(f'   -{feat["name"]}')
+                        for des in feat.get('desc'):
+                            lines.append(f"  {des}")
+                        lines.append("")
 
-            desc = feat_api['desc']
-            for line in desc:
-                lines.append(line)
-        lines.append()
-
-        race_index = self.db.get_character(self.character_index).race_index
-        race = self.api.get_race(race_index)
-
-        lines.append(f'RACIAL TRAITS')
-        for trait_list in race['traits']:
-            lines.append(f'-{trait_list['name']}')
-
-            desc = self.api.get_trait(trait_list['index'])['desc']
-            for line in desc:
-                lines.append(line)
-        lines.append()
-
-        class_index = self.db.get_character(self.character_index).class_index
-        level = self.db.get_character(self.character_index).level
-        _class = self.api.get_class(class_index)
-
-        lines.append(f'CLASS TRAITS')
-        for trait_list in _class['traits']:
-            lines.append(f'{trait_list['name']}')
-
-            desc = self.api.get_trait(trait_list['index'])['desc']
-            for line in desc:
-                lines.append(line)
-        lines.append()
-
-
-
-    def get_spells_format(self):
-        # Pestaña conjuros
-        self.db.get_character_spells(self.character_index)
-
-
-
-    def get_equipment_format(self):
-        # Pestaña conjuros
-        lines = []
-        spells = self.db.get_character_spells(self.character_index)
-
-        lines.append(f'SPELLS')
-        for spell in spells:
-            spell_api = self.api.get_spell(spell.spell_index)
-            lines.append(f'-{spell_api['name']}')
-
-            desc = spell_api['desc']
-            for line in desc:
-                lines.append(line)
-
-        
-
-
-
-
-
-class CharacterDetail(QWidget):
-    def __init__(self, db:DatabaseManager, parent):
-        super().__init__()
-        self.db = db
-        self.parent_tab = parent
-        self.character_id = None
-
-        self.text = QTextEdit()
-        self.text.setReadOnly(True)
-
-        self.edit_btn = QPushButton("✏️ Editar")
-        self.delete_btn = QPushButton("🗑️ Eliminar")
-        self.back_btn = QPushButton("⬅️ Volver")
-
-        self.edit_btn.clicked.connect(self.edit_character)
-        self.delete_btn.clicked.connect(self.delete_character)
-        self.back_btn.clicked.connect(self.parent_tab.show_list)
-
-        buttons = QHBoxLayout()
-        buttons.addWidget(self.edit_btn)
-        buttons.addWidget(self.delete_btn)
-        buttons.addWidget(self.back_btn)
-
-        layout = QVBoxLayout()
-        layout.addWidget(self.text)
-        layout.addLayout(buttons)
-        self.setLayout(layout)
-
-    def load_character(self, character_id):
-        self.character_id = character_id
-        character = self.db.get_character(character_id)
-
-        if not character:
-            return
-
-        self.text.setPlainText(
-            self.db.build_character_sheet(character)
-        )
+        return "\n".join(lines)
     
-    def edit_character(self):
-        self.parent_tab.show_form(self.character_id)
+    def get_racial_format(self, ch_race, ch_subrace):
+        '''Da formato a los datos de raza y subraza'''
+        lines = []
 
-    def delete_character(self):
-        reply = QMessageBox.question(
-            self,
-            "Eliminar personaje",
-            "¿Seguro que deseas eliminar este personaje?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        )
-
-        if reply == QMessageBox.StandardButton.Yes:
-            self.db.delete_character(self.character_id)
-            self.parent_tab.show_list()
-
-    def save_character(self):
-        if self.character_id is None:
-            self.create_character()
-        else:
-            self.update_character()
-
-    def load_character(self, character_id=None):
-        self.character_id = character_id
-
-        if character_id is None:
-            self.clear_form()
-            return
-
-        c = self.db.get_character(character_id)
-
-        self.name.setText(c.name)
-        self.race.setText(c.race_index)
-        self.char_class.setText(c.class_index)
-        self.subclass.setText(c.subclass_index or "")
-        self.level.setValue(c.level)
-        self.hp.setValue(c.hit_points)
-        self.background.setText(c.background_index or "")
-        self.story.setPlainText(c.background_story or "")
-        self.alignment.setText(c.alignment or "")
-
-
-    def update_character(self):
-        character = Characters(
-            user_id=self.parent_tab.user,
-            name=self.name.text(),
-            race_index=self.race.text(),
-            class_index=self.char_class.text(),
-            level=self.level.value(),
-            subclass_index=self.subclass.text() or None,
-            hit_points=self.hp.value(),
-            background_index=self.background.text(),
-            background_story=self.story.toPlainText(),
-            alignment=self.alignment.text(),
-            object_id=self.character_id
-        )
-
-        self.db.update_character(character)
-        self.parent_tab.show_detail(self.character_id)
-
-
-
-
-
-    def load_character(self, character_id):
-        self.character_id = character_id
-        self.db:DatabaseManager
+        race_traits = self.api.get_race(ch_race)["traits"]
+        if race_traits:
+            for trait in race_traits:
+                feat = self.api.get_trait(trait["index"])
+                lines.append(f'   -{feat["name"]}')
+                for des in feat.get('desc'):
+                    lines.append(f"  {des}")
+                lines.append("")
         
-        character:Characters = self.db.get_character(character_id)
+        if ch_subrace != None and ch_subrace != "":
+            subrace_traits = self.api.get_subrace(ch_subrace)["racial_traits"]
+            if subrace_traits:
+                for trait in subrace_traits:
+                    feat = self.api.get_trait(trait["index"])
+                    lines.append(f'   -{feat["name"]}')
+                    for des in feat.get('desc'):
+                        lines.append(f"  {des}")
+                    lines.append("")
 
-        if not character:
-            self.text.setPlainText("Personaje no encontrado.")
-            return
+        return "\n".join(lines)
+    
+    def get_background_format(self, ch_background, ch_story):
+        '''Da formato a los datos de raza y subraza'''
+        lines = []
 
-        # Versión simple, SIN API
-        content = (
-            f"Nombre: {character.name}\n"
-            f"Clase: {character.class_index}\n"
-            f"Raza: {character.race_index}\n"
-            f"Nivel: {character.level}\n"
-            f"PV: {character.hit_points}\n\n"
-            f"Alineamiento: {character.alignment}\n"
-            f"Trasfondo: {character.background_index}\n"
-        )
+        background_desc = self.api.get_background(ch_background)["desc"]
+        if background_desc:
+            for desc in background_desc:
+                lines.append(f"  {desc}")
+            lines.append("")
+        
+        if ch_story != None and ch_story != "":
+            lines.append("Story/Notes")
+            lines.append(ch_story)
+            lines.append("")
 
-        self.text.setPlainText(content)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return "\n".join(lines)
+    

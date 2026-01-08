@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
 
 from model import DatabaseManager
 
+
 class CampaignDetail(QWidget):
     def __init__(self, db:DatabaseManager, parent):
         super().__init__()
@@ -56,14 +57,17 @@ class CampaignDetail(QWidget):
 
         # Abajo, botones guardar salir etc
         self.add_btn = QPushButton("➕ Add character")
+        self.edit_btn = QPushButton("✏️ Edit campaign")
         self.del_btn = QPushButton("🗑️ Delete Campaign")
         self.back_btn = QPushButton("⬅️ Back")
 
         self.add_btn.clicked.connect(self.add_character)
+        self.edit_btn.clicked.connect(lambda: self.parent_tab.show_form(self.campaign_id))
         self.del_btn.clicked.connect(self.delete_campaign)
         self.back_btn.clicked.connect(self.parent_tab.show_list)
 
         layout.addWidget(self.add_btn)
+        layout.addWidget(self.edit_btn)
         layout.addWidget(self.del_btn)
         layout.addWidget(self.back_btn)
         
@@ -101,7 +105,7 @@ class CampaignDetail(QWidget):
         reply = QMessageBox.question(
             self,
             "Delete character",
-            "¿Delete character from campaign?",
+            "Are you sure you want to delete this character from the campaign?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
 
@@ -154,7 +158,7 @@ class CampaignDetail(QWidget):
         reply = QMessageBox.question(
             self,
             "Delete campaign",
-            "¿Delete campaign?",
+            "Are you sure you want to delete this campaign?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
 

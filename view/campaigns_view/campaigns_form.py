@@ -3,14 +3,13 @@ from PyQt6.QtWidgets import (
     QPushButton, QFormLayout, QMessageBox
 )
 
-from model.user_db import Campaigns
-from model import DatabaseManager
+from model import DatabaseManager, Campaigns
+
 
 class CampaignForm(QWidget):
-    def __init__(self, db:DatabaseManager, parent, campaign:Campaigns = Campaigns("")):
+    def __init__(self, db:DatabaseManager, parent):
         super().__init__()
         self.db = db
-        self.campaign = campaign
         self.parent_tab = parent
         self.campaign_id = None
 
@@ -31,17 +30,17 @@ class CampaignForm(QWidget):
         self.setLayout(layout)
 
     def load_campaign(self, campaign_id=None):
+        self.campaign_id = campaign_id
         if campaign_id:
             c = self.db.get_campaign(campaign_id)[0]
             self.name.setText(c.name)
             self.desc.setPlainText(c.description or "")
             return
 
-        self.campaign_id = campaign_id
         self.name.clear()
         self.desc.clear()
         
-    def save(self, campaign_id=None):
+    def save(self):
         if not self.name.text().strip():
             QMessageBox.warning(self, "Error", "El nombre no puede estar vacío")
             return

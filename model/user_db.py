@@ -1064,7 +1064,7 @@ class DatabaseManager:
         ''', (campaign_id, character_id))
         row = cursor.fetchone()
         cursor.close()
-        
+
         if row is None:
             return None
 
@@ -1400,6 +1400,9 @@ class Debug():
                 carac1:Character_stats = self.db.get_character_stats(u.object_id)
                 print (f' -FUE {carac1.str_stat}\n -DEX {carac1.dex_stat}\n -CON {carac1.con_stat}\n -SAB {carac1.wis_stat}\n -INT {carac1.int_stat}\n -CHA {carac1.cha_stat}')
 
+                print (f'\nOther')
+                print (f' -Raza {u.race_index}\n -SubRace {u.subrace_index}\n -Class {u.class_index}\n -SubClass {u.subclass_index}\n -Lvl {u.level}\n -Back {u.background_index}')
+
                 print (f'\nSpells')
                 carac2:list = self.db.get_character_spells(u.object_id)
                 for x2 in carac2:
@@ -1457,10 +1460,10 @@ if __name__ == "__main__":
     db = DatabaseManager()
     dg = Debug()
     
-    db.delete_all()
-    db.create_tables()
-    dg.seed_all()
-    dg.dispaly_all()
+    #db.delete_all()
+    #db.create_tables()
+    #dg.seed_all()
+    #dg.dispaly_all()
 
     #db.create_table_users()
     #dg.seed_users()

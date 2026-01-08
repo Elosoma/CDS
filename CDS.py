@@ -1,29 +1,23 @@
 '''Archivo ejecutable, actua como una raíz para imports y referencias'''
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QFrame
+from PyQt6.QtWidgets import QApplication, QMainWindow
 from view import ViewWidget
 
 
 class Application(QMainWindow):
     def __init__(self):
         super().__init__()
-
-        self.resize(1000, 750)
-        self.setWindowTitle("CDS")
-        self.setStyleSheet("""
-            QMainWindow {
-                background-color: #1e1e1e;
-                border: 2px solid #8b5cf6;
-            }
-        """)
-
-        self.explorer = ViewWidget()
+        self.explorer = ViewWidget(self)
         self.setCentralWidget(self.explorer)
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyleSheet("""
+        QMainWindow {
+            background-color: #1e1e1e;
+            border: 2px solid #8b5cf6;
+        }
+                      
         QWidget {
             font-family: Segoe UI;
             background: #2a2a2a;        

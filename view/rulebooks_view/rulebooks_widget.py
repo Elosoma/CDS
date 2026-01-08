@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (
     QPushButton, QScrollArea, QTextEdit
 )
 
-from model.user_db import DatabaseManager
+from model import DatabaseManager
 
 
 class RulebooksWidget(QWidget):
@@ -12,6 +12,7 @@ class RulebooksWidget(QWidget):
     def __init__(self, db:DatabaseManager, current_user = 1):
         super().__init__()
         self.db = db
+        self.user = current_user
         layout = QVBoxLayout()
 
         titulo = QLabel("Rulebooks secctions")
@@ -68,7 +69,7 @@ class RulebooksWidget(QWidget):
         self.setLayout(layout)
 
     def change_detail(self, index: str):
-        rulebooks = self.db.get_all_rulebooks()
+        rulebooks = self.db.get_user_rulebooks(self.user)
         if rulebooks is []:
             self.detail.clear()
             return

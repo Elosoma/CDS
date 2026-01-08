@@ -19,7 +19,7 @@ class HomeWidget(QScrollArea):
 
         label = QLabel()
         pixmap = QPixmap('utils/log.png')
-        pixmap = pixmap.scaled(750, 750, Qt.AspectRatioMode.KeepAspectRatio)
+        pixmap = pixmap.scaled(600, 600, Qt.AspectRatioMode.KeepAspectRatio)
         label.setPixmap(pixmap)
         layout.addWidget(label)
         
