@@ -1,12 +1,14 @@
 '''Archivo ejecutable, actua como una raíz para imports y referencias'''
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow
+from PyQt6.QtGui import QIcon
 from view import ViewWidget
 
 
 class Application(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.setWindowIcon(QIcon('utils/log.png'))
         self.explorer = ViewWidget(self)
         self.setCentralWidget(self.explorer)
 
