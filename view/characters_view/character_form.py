@@ -92,15 +92,19 @@ class CharacterForm(QWidget):
         race_index = self.race.currentData()
         if race_index is None:
             return
-        race:dict = self.api.get_race(f'{race_index}')
+        try:
+            race:dict = self.api.get_race(f'{race_index}')
 
-        subraces = race.get("subraces", [])
-        if not subraces:
+            subraces = race.get("subraces", [])
+            if not subraces:
+                return
+
+            self.subrace.setEnabled(True)
+            for s in subraces:
+                self.subrace.addItem(s["name"], s["index"])
+        except:
             return
-
-        self.subrace.setEnabled(True)
-        for s in subraces:
-            self.subrace.addItem(s["name"], s["index"])
+        
 
 
 
@@ -218,8 +222,12 @@ class CharacterForm(QWidget):
             self.char_class.setCurrentIndex(0)
             self.char_subclass.setCurrentIndex(0)
 
-            for spin in self.stats:
-                spin.setValue(10)
+            self.stats["str"].setValue(10)
+            self.stats["dex"].setValue(10)
+            self.stats["con"].setValue(10)
+            self.stats["int"].setValue(10)
+            self.stats["wis"].setValue(10)
+            self.stats["cha"].setValue(10)
 
             self.background.setCurrentIndex(0)
             self.alignment.setCurrentIndex(0)

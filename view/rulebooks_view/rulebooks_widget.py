@@ -69,16 +69,19 @@ class RulebooksWidget(QWidget):
         self.setLayout(layout)
 
     def change_detail(self, index: str):
-        rulebooks = self.db.get_user_rulebooks(self.user)
-        if rulebooks is []:
-            self.detail.clear()
+        try:
+            rulebooks = self.db.get_user_rulebooks(self.user)
+            if rulebooks is [] or rulebooks is None:
+                self.detail.clear()
+                return
+
+            lines = []
+
+            for rulebook in rulebooks:
+                value = getattr(rulebook, index, None)
+                if value:
+                    lines.append(str(value))
+
+            self.detail.setPlainText("\n\n".join(lines))
+        except:
             return
-
-        lines = []
-
-        for rulebook in rulebooks:
-            value = getattr(rulebook, index, None)
-            if value:
-                lines.append(str(value))
-
-        self.detail.setPlainText("\n\n".join(lines))

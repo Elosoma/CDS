@@ -53,13 +53,9 @@ class LoadCharacterSheet():
         except:
             lines.append("API RACE ERROR")
 
-        try:
-            # Datos de trasfondo
-            bg_name = self.api.get_background(character.background_index)["name"]
-            lines.append(f"\n\n{bg_name}")
-            lines.append(self.get_background_format(character.background_index, character.background_story))
-        except:
-            lines.append("API BACKGROUND ERROR")
+        # Datos de trasfondo
+        lines.append(self.get_background_format(character.background_index, character.background_story))
+
         return "\n".join(lines)
 
 
@@ -67,27 +63,39 @@ class LoadCharacterSheet():
         '''Da formato a los datos de clase y subclase'''
         lines = []
 
-        for i in range(ch_lvl):
-            lvl = i+1
-            lines.append(f'Lvl: {lvl}\n')
-            lvl_features = self.api.get_class_level(ch_class,lvl)["features"]
-            if lvl_features:
-                for feature in lvl_features:
-                    feat = self.api.get_feature(feature["index"])
-                    lines.append(f'   -{feat["name"]}')
-                    for des in feat.get('desc'):
-                        lines.append(f"  {des}")
-                    lines.append("")
-            
-            if ch_subclass != None:
-                sublvl_features = self.api.get_subclass_level(ch_subclass,lvl)["features"]
-                if sublvl_features:
-                    for feature in sublvl_features:
+        try:
+            for i in range(ch_lvl):
+                lvl = i+1
+                lines.append(f'Lvl: {lvl}\n')
+                lvl_features = self.api.get_class_level(ch_class,lvl)["features"]
+                if lvl_features:
+                    for feature in lvl_features:
                         feat = self.api.get_feature(feature["index"])
                         lines.append(f'   -{feat["name"]}')
                         for des in feat.get('desc'):
                             lines.append(f"  {des}")
                         lines.append("")
+        except:
+            lines.append("API CLASS ERROR")
+            
+        try:
+            if ch_subclass != None:
+                for i in range(ch_lvl):
+                    lvl = i+1
+                    try:
+                        sublvl_features = self.api.get_subclass_level(ch_subclass,lvl)["features"]
+                        if sublvl_features:
+                            for feature in sublvl_features:
+                                feat = self.api.get_feature(feature["index"])
+                                lines.append(f'   -{feat["name"]}')
+                                for des in feat.get('desc'):
+                                    lines.append(f"  {des}")
+                                lines.append("")
+                    except:
+                        lines.append("")
+                    
+        except:
+            lines.append("API SUBCLASS ERROR")
 
         return "\n".join(lines)
     
@@ -120,16 +128,22 @@ class LoadCharacterSheet():
         '''Da formato a los datos de raza y subraza'''
         lines = []
 
-        background_desc = self.api.get_background(ch_background)["desc"]
-        if background_desc:
-            for desc in background_desc:
-                lines.append(f"  {desc}")
-            lines.append("")
-        
-        if ch_story != None and ch_story != "":
-            lines.append("Story/Notes")
-            lines.append(ch_story)
-            lines.append("")
+        try:
+            bg_name = self.api.get_background(ch_background)["name"]
+            lines.append(f"\n\n{bg_name}")
+            background_des = self.api.get_background(ch_background)
+            background_desc = background_des['feature']["desc"]
+            if background_desc:
+                for desc in background_desc:
+                    lines.append(f"  {desc}")
+                lines.append("")
+        except:
+            lines.append("API Background Error")
+    
+
+        lines.append("Story/Notes:")
+        lines.append(ch_story)
+        lines.append("")
 
         return "\n".join(lines)
     

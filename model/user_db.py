@@ -11,289 +11,26 @@ import sqlite3
    ####   #######  ##  ##    #####   #######   #####
 '''
 
-class Users:
-    '''Clase Usuarios, gestiona la creación, edición e interacción de las cuentas dentro de la aplicación.'''
-    def __init__(self,username:str,
-                 mail:str,
-                 password:str,
-
-                 object_id=''):
-        '''
-        El cada usuario será identificado mediante el correo único.
-
-        :param username: Nombre de usuario de la cuenta.
-        :type username: str
-        :param mail: Correo asociado a la cuenta.
-        :type mail: str, formato correo
-        :param password: Contraseña de acceso.
-        :type password: str, encriptado por protección de datos
-
-        :param object_id: Clave primaria única.
-        '''
-        self.username = username
-        self.mail = mail
-        self.password = password
-
-        self.object_id = object_id
 
 
-class Characters:
-    '''Clase Personajes, gestiona la creación, edición e interacción de los personajes asociados a un usuario.'''
-    def __init__(self,name:str,
-                 
-                 race_index:str,
-                 subrace_index:str,
-                 class_index:str,
-                 level:int,
-                 subclass_index:str,
-                 hit_points:int=1,
-
-                 background_index:str='',
-                 background_story:str='',
-                 alignment:str='',
-                 
-                 user_id='',
-                 object_id=''):
-        '''
-        Cada personaje será identificado por un id único generado en su creación.
-        
-        :param name: Nombre del personaje.
-        :type name: str
-
-        :param race_index: Raza del personaje.
-        :type race_index: str (Index API)
-        :param class_index: Clase del personaje.
-        :type class_index: str (Index API)
-        :param level: Nivel del personaje.
-        :type level: int (1 -> 20)
-        :param subclass_index: Subclase del personaje.
-        :type subclass_index: str (Index API)
-        :param hit_points: Puntos máximos de vida.
-        :type hit_points: str (Index API)
-
-        :param background_index: Trasfondo del personaje.
-        :type background_index: str (Index API)
-        :param background_story: Historia del personaje.
-        :type background_story: str
-        :param alignment: Alineamiento del personaje.
-        :type alignment: str (Index API)
-
-        :param user_id: Referencia al usuario dueño.
-        :param object_id: Clave primaria única.
-        '''
-        self.name = name
-
-        self.race_index = race_index
-        self.subrace_index = subrace_index
-        self.class_index = class_index
-        self.level = level
-        self.subclass_index = subclass_index
-        self.hit_points = hit_points
-
-        self.background_index = background_index
-        self.background_story = background_story
-        self.alignment = alignment
-        
-        self.user_id = user_id
-        self.object_id = object_id
-
-class Character_stats:
-    '''Almacena las estadísticas de cada personaje.'''
-    def __init__(self,
-                 str_stat:int=10,
-                 dex_stat:int=10,
-                 con_stat:int=10,
-                 int_stat:int=10,
-                 wis_stat:int=10,
-                 cha_stat:int=10,
-                 
-                 character_id=''):
-        '''
-        Almacena las estadísticas de cada personaje.
-
-        :param str_stat: Fuerza del personaje.
-        :type str_stat: int
-        :param dex_stat: Destreza del personaje.
-        :type dex_stat: int
-        :param con_stat: Constitución del personaje.
-        :type con_stat: int
-        :param int_stat: Inteligencia del personaje.
-        :type int_stat: int
-        :param wis_stat: Sabiduria del personaje.
-        :type wis_stat: int
-        :param cha_stat: Carisma del personaje.
-        :type cha_stat: int
-
-        :param character_id: Referencia al personaje.
-        '''
-        self.str_stat = str_stat
-        self.dex_stat = dex_stat
-        self.con_stat = con_stat
-        self.int_stat = int_stat
-        self.wis_stat = wis_stat
-        self.cha_stat = cha_stat
-
-        self.character_id = character_id
-
-class Character_spells:
-    '''Almacena los conjuros del personaje.'''
-    def __init__(self,
-                 spell_index:str,
-                 character_id=''):
-        '''
-        Almacena los conjuros del personaje.
-
-        :param spell_index: Referencia al conjuro del personaje.
-        :type spell_index: int
-
-        :param character_id: Referencia al personaje.
-        '''
-        self.spell_index = spell_index
-        self.character_id = character_id
-
-class Character_feats:
-    '''Almacena los rasgos del personaje.'''
-    def __init__(self,
-                 feat_index:str,
-                 character_id=''):
-        '''
-        Almacena los rasgos del personaje.
-
-        :param feat_index: Referencia al rasgo del personaje.
-        :type feat_index: str (Index API)
-
-        :param character_id: Referencia al personaje.
-        '''
-        self.feat_index = feat_index
-        self.character_id = character_id
-
-class Character_equipment:
-    '''Almacena el equipo de cada personaje.'''
-    def __init__(self,
-                 equipment_index:str,
-                 quantity:int=1,
-                 character_id=''):
-        '''
-        Almacena el equipo de cada personaje.
-
-        :param equipment_index: Referencia al objeto/equipamiento.
-        :type equipment_index: str (Index API)
-        :param quantity: Cantidad.
-        :type quantity: int
-
-        :param character_id: Referencia al personaje.
-        '''
-        self.equipment_index = equipment_index
-        self.quantity = quantity
-        self.character_id = character_id
 
 
-class Campaigns:
-    '''Clase Campañas, gestiona la creación, edición e interacción de las campañas hechas por un usuario.'''
-    def __init__(self,name:str,
-                 description:str='',
-
-                 user_id='',
-                 object_id=''):
-        '''
-        Cada campaña será identificada por un id único generado en su creación.
-        
-        :param name: Nombre de la campaña.
-        :type name: str
-        :param description: Descripcion de la campaña y notas.
-        :type description: str
-
-        :param user_id: Referencia al usuario dueño.
-        :param object_id: Clave primaria única.
-        '''
-        self.name = name
-        self.description = description
-
-        self.user_id = user_id
-        self.object_id = object_id
-
-class Campaign_characters:
-    '''Clase personajes de campaña, almacena los datos relativos a personajes añadidos a una campaña.'''
-    def __init__(self,health_points:int=0,
-                 notes:str='',
-                 
-                 campaign_id='',
-                 character_id=''):
-        '''
-        Reune los datos de cada personaje dentro de la campaña.
-        
-        :param health_points: Puntos de vida actuales del personaje.
-        :type health_points: int
-        :param notes: Notas sobre objetos, estados, conjuros etc...
-        :type notes: str
-
-        :param campaign_id: Referencia a la campaña.
-        :param character_id: Referencia al personaje.
-        '''
-        self.health_points = health_points
-        self.notes = notes
-        
-        self.campaign_id = campaign_id
-        self.character_id = character_id
 
 
-class Rulebooks:
-    '''Clase Libros de reglas, gestiona la creación, edición e interacción de los libros de reglas y como estos se vinculan a la api online.'''
-    def __init__(self,rulebook_name:str,
-                 rulebooks_description:str='',
 
-                 ability_scores:str='',alignments:str='',backgrounds:str='',
-                 classes:str='',conditions:str='',damage_types:str='',
-                 equipment:str='',equipment_categories:str='',feats:str='',
-                 features:str='',languages:str='',magic_items:str='',
-                 magic_schools:str='',monsters:str='',proficiencies:str='',
-                 races:str='',rule_sections:str='',rules:str='',
-                 skills:str='',spells:str='',subclasses:str='',
-                 subraces:str='',traits:str='',weapon_properties:str='',
 
-                 user_id='',
-                 object_id=''):
-        '''
-        Libros de reglas y su contenido. Almacenado todo mediante textos con formato json.
-        
-        :param rulebook_name: Nombre del libro de reglas.
-        :type rulebook_name: str
-        :param rulebooks_description: Descripción del libro y su contenido.
-        :type rulebooks_description: str
 
-        :param user_id: Referencia al usuario dueño.
-        :param object_id: Clave primaria única.
-        '''
-        self.rulebook_name = rulebook_name
-        self.rulebooks_description = rulebooks_description
 
-        self.ability_scores = ability_scores
-        self.alignments = alignments
-        self.backgrounds = backgrounds
-        self.classes = classes
-        self.conditions = conditions
-        self.damage_types = damage_types
-        self.equipment = equipment
-        self.equipment_categories = equipment_categories
-        self.feats = feats
-        self.features = features
-        self.languages = languages
-        self.magic_items = magic_items
-        self.magic_schools = magic_schools
-        self.monsters = monsters
-        self.proficiencies = proficiencies
-        self.races = races
-        self.rule_sections = rule_sections
-        self.rules = rules
-        self.skills = skills
-        self.spells = spells
-        self.subclasses = subclasses
-        self.subraces = subraces
-        self.traits = traits
-        self.weapon_properties = weapon_properties
-        
-        self.user_id = user_id
-        self.object_id = object_id
+
+
+
+
+
+
+
+
+
+
 
 '''
  ######     ##     ######   ####       ##      #####
@@ -1498,3 +1235,7 @@ if __name__ == "__main__":
     #db.create_table_rulebooks()
     #dg.seed_rulebooks()
     #dg.test_rulebooks()
+
+    from api_2014 import  DnDAPI
+    api = DnDAPI()
+    print(f'{api.get_background("acolyte")}')
