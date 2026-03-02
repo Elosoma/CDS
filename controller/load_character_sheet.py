@@ -4,10 +4,7 @@ from PyQt6.QtWidgets import (
     QHBoxLayout, QLineEdit, QComboBox, QSpinBox,QListWidgetItem
 )
 
-# Referencias
-#from view.characters.character_tab import CharacterTab
-from model.user_db import DatabaseManager, Characters
-from model.api_2014 import DnDAPI
+from model import DatabaseManager, DnDAPI
 
 
 class LoadCharacterSheet():

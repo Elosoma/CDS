@@ -27,6 +27,14 @@ class CharacterList(QWidget):
         layout.addWidget(self.new_btn)
         self.setLayout(layout)
 
+    def filtrar_nombres(self, texto):
+        texto = texto.lower()
+        filtrados = [
+            nombre for nombre in self.nombres
+            if texto in nombre.lower()
+        ]
+        self.actualizar_label(filtrados)
+
     def refresh(self):
         '''Limpia la lista y la refresca con datos actualizados.'''
         self.list.clear()
@@ -47,3 +55,63 @@ class CharacterList(QWidget):
     def new_character(self):
         '''Llama al metodo que cambia la pestaña al formulario de creación.'''
         self.parent_tab.show_form()
+
+
+
+import sys
+from PyQt6.QtWidgets import (
+    QApplication, QWidget, QVBoxLayout,
+    QLabel, QLineEdit
+)
+
+class Ventana(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Búsqueda de nombres")
+        self.resize(300, 400)
+
+        # Lista original de nombres
+        self.nombres = [
+            "Ana", "Andrés", "Beatriz", "Carlos",
+            "Carmen", "Daniel", "David", "Elena",
+            "Fernando", "Lucía", "María", "Pablo"
+        ]
+
+        # Widgets
+        self.buscador = QLineEdit()
+        self.buscador.setPlaceholderText("Buscar nombre...")
+
+        self.label = QLabel()
+        self.label.setWordWrap(True)
+
+        # Layout
+        layout = QVBoxLayout()
+        layout.addWidget(self.buscador)
+        layout.addWidget(self.label)
+        self.setLayout(layout)
+
+        # Mostrar lista inicial
+        self.actualizar_label(self.nombres)
+
+        # Conectar señal
+        self.buscador.textChanged.connect(self.filtrar_nombres)
+
+    def actualizar_label(self, lista):
+        texto = "\n".join(lista)
+        self.label.setText(texto)
+
+    def filtrar_nombres(self, texto):
+        texto = texto.lower()
+        filtrados = [
+            nombre for nombre in self.nombres
+            if texto in nombre.lower()
+        ]
+        self.actualizar_label(filtrados)
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    ventana = Ventana()
+    ventana.show()
+    sys.exit(app.exec())

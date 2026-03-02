@@ -1,6 +1,4 @@
-'''Cuenta con una clase API que realiza solicitudes mediante la función request'''
 import requests
-
 
 class DnDAPI:
     BASE_URL = "https://www.dnd5eapi.co/api/2014"

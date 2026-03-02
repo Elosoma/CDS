@@ -1,56 +1,21 @@
-'''Gestiona los datos referentes a los usuarios de la aplicación'''
 import sqlite3
 
-'''
-   ####   ####       ##      #####   #######   #####
-  ##  ##   ##       ####    ##   ##   ##   #  ##   ##
- ##        ##      ##  ##   #         ## #    #
- ##        ##      ##  ##    #####    ####     #####
- ##        ##   #  ######        ##   ## #         ##
-  ##  ##   ##  ##  ##  ##   ##   ##   ##   #  ##   ##
-   ####   #######  ##  ##    #####   #######   #####
-'''
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-'''
- ######     ##     ######   ####       ##      #####
- # ## #    ####     ##  ##   ##       ####    ##   ##
-   ##     ##  ##    ##  ##   ##      ##  ##   #
-   ##     ##  ##    #####    ##      ##  ##    #####
-   ##     ######    ##  ##   ##   #  ######        ##
-   ##     ##  ##    ##  ##   ##  ##  ##  ##   ##   ##
-  ####    ##  ##   ######   #######  ##  ##    #####
-'''
+from .model_classes import (
+    Users, Rulebooks, Characters, Character_stats, 
+    Character_feats, Character_spells, Character_equipment, 
+    Campaigns, Campaign_characters
+)
 
 class DatabaseManager:
     def __init__(self, db_name="model/cds.db"):
         '''
-        Inicia la conexión con la base de datos.
+        Inicia la conexión con la base de datos y crea las tablas.
         
         :param db_name: Nombre del archivo en el que se crea la conexión con la db y las tablas.
         :type db_name: Default path="model/cds.db"
         '''
         self.connection = sqlite3.connect(db_name)
+        self.create_tables()
 
     def create_table_users(self):
         cursor = self.connection.cursor()
@@ -61,6 +26,46 @@ class DatabaseManager:
             username TEXT NOT NULL,
             mail TEXT NOT NULL UNIQUE,
             password TEXT NOT NULL
+        )''')
+  
+        self.connection.commit()
+        cursor.close()
+
+    def create_table_rulebooks(self):
+        cursor = self.connection.cursor()
+
+        #Rulebooks()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS rulebooks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                rulebook_name TEXT,
+                rulebooks_description TEXT,
+                       
+                ability_scores TEXT,
+                alignments TEXT, 
+                backgrounds TEXT, 
+                classes TEXT, 
+                conditions TEXT, 
+                damage_types TEXT, 
+                equipment TEXT, 
+                equipment_categories TEXT, 
+                feats TEXT, 
+                features TEXT, 
+                languages TEXT, 
+                magic_items TEXT, 
+                magic_schools TEXT, 
+                monsters TEXT, 
+                proficiencies TEXT, 
+                races TEXT, 
+                rule_sections TEXT, 
+                rules TEXT, 
+                skills TEXT, 
+                spells TEXT, 
+                subclasses TEXT, 
+                subraces TEXT, 
+                traits TEXT, 
+                weapon_properties TEXT,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         )''')
   
         self.connection.commit()
@@ -79,8 +84,9 @@ class DatabaseManager:
             race_index TEXT NOT NULL,
             subrace_index TEXT,
             class_index TEXT NOT NULL,
-            level INTEGER NOT NULL,
             subclass_index TEXT,
+            level INTEGER NOT NULL,
+            
             hit_points INTEGER NOT NULL,
             
             background_index TEXT,
@@ -111,20 +117,6 @@ class DatabaseManager:
         self.connection.commit()
         cursor.close()
 
-    def create_table_character_spells(self):
-        cursor = self.connection.cursor()
-
-        #Character_spells()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS character_spells (
-            character_id INTEGER,
-            spell_index TEXT,
-            PRIMARY KEY (character_id, spell_index),
-            FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE
-        )''')
-  
-        self.connection.commit()
-        cursor.close()
-
     def create_table_character_feats(self):
         cursor = self.connection.cursor()
 
@@ -133,6 +125,20 @@ class DatabaseManager:
             character_id INTEGER,
             feat_index TEXT,
             PRIMARY KEY (character_id, feat_index),
+            FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE
+        )''')
+  
+        self.connection.commit()
+        cursor.close()
+
+    def create_table_character_spells(self):
+        cursor = self.connection.cursor()
+
+        #Character_spells()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS character_spells (
+            character_id INTEGER,
+            spell_index TEXT,
+            PRIMARY KEY (character_id, spell_index),
             FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE
         )''')
   
@@ -186,74 +192,20 @@ class DatabaseManager:
         self.connection.commit()
         cursor.close()
 
-    def create_table_rulebooks(self):
-        cursor = self.connection.cursor()
-
-        #Rulebooks()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS rulebooks (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                rulebook_name TEXT,
-                rulebooks_description TEXT,
-                       
-                ability_scores TEXT,
-                alignments TEXT, 
-                backgrounds TEXT, 
-                classes TEXT, 
-                conditions TEXT, 
-                damage_types TEXT, 
-                equipment TEXT, 
-                equipment_categories TEXT, 
-                feats TEXT, 
-                features TEXT, 
-                languages TEXT, 
-                magic_items TEXT, 
-                magic_schools TEXT, 
-                monsters TEXT, 
-                proficiencies TEXT, 
-                races TEXT, 
-                rule_sections TEXT, 
-                rules TEXT, 
-                skills TEXT, 
-                spells TEXT, 
-                subclasses TEXT, 
-                subraces TEXT, 
-                traits TEXT, 
-                weapon_properties TEXT,
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        )''')
-  
-        self.connection.commit()
-        cursor.close()
-
     def create_tables(self):
         '''Crea las tablas en caso de que no existan.'''
         self.create_table_users()
 
+        self.create_table_rulebooks() 
+
         self.create_table_characters()
         self.create_table_character_stats()
-        self.create_table_character_spells()
         self.create_table_character_feats()
+        self.create_table_character_spells()
         self.create_table_character_equipment()
 
         self.create_table_campaigns()
         self.create_table_campaign_characters()
-        
-        self.create_table_rulebooks() 
-
-    '''
-##   ##  #######  ######    #####   #####     #####    #####
-### ###   ##   #  # ## #   ##   ##   ## ##   ##   ##  ##   ##
-#######   ## #      ##     ##   ##   ##  ##  ##   ##  #
-#######   ####      ##     ##   ##   ##  ##  ##   ##   #####
-## # ##   ## #      ##     ##   ##   ##  ##  ##   ##       ##
-##   ##   ##   #    ##     ##   ##   ## ##   ##   ##  ##   ##
-##   ##  #######   ####     #####   #####     #####    #####
-    '''
-
-    def close(self):
-        '''Cierra conexión con la db'''
-        self.connection.close()
 
     def delete_all(self):
         '''Borra todos los datos de la db'''
@@ -263,8 +215,8 @@ class DatabaseManager:
         cursor.execute('''DROP TABLE IF EXISTS campaigns''')
 
         cursor.execute('''DROP TABLE IF EXISTS character_equipment''')
-        cursor.execute('''DROP TABLE IF EXISTS character_feats''')
         cursor.execute('''DROP TABLE IF EXISTS character_spells''')
+        cursor.execute('''DROP TABLE IF EXISTS character_feats''')
         cursor.execute('''DROP TABLE IF EXISTS character_stats''')
         cursor.execute('''DROP TABLE IF EXISTS characters''')
 
@@ -273,7 +225,11 @@ class DatabaseManager:
         
         self.connection.commit()
         cursor.close()
-    
+
+    def close(self):
+        '''Cierra conexión con la db'''
+        self.connection.close()
+
     '''
     #     #  #####  ####### ######   #####  
     #     # #     # #       #     # #     # 
@@ -325,7 +281,7 @@ class DatabaseManager:
         if rows is []:
             return None
 
-        return [Users(row[1], row[2], row[3], row[0]) for row in rows]
+        return [Users(row[2], row[1], row[3], row[0]) for row in rows]
 
     def get_all_users(self):
         '''Comando, SELECT * FROM users'''
@@ -339,7 +295,119 @@ class DatabaseManager:
         if rows is []:
             return None
 
-        return [Users(row[1], row[2], row[3], row[0]) for row in rows]
+        return [Users(row[2], row[1], row[3], row[0]) for row in rows]
+
+    '''
+    ######  #     # #       ####### ######  ####### ####### #    #  #####  
+    #     # #     # #       #       #     # #     # #     # #   #  #     # 
+    #     # #     # #       #       #     # #     # #     # #  #   #       
+    ######  #     # #       #####   ######  #     # #     # ###     #####  
+    #   #   #     # #       #       #     # #     # #     # #  #         # 
+    #    #  #     # #       #       #     # #     # #     # #   #  #     # 
+    #     #  #####  ####### ####### ######  ####### ####### #    #  #####  
+    '''
+
+    def add_rulebook(self, rulebook:Rulebooks):
+        '''Coamndo, SQL INSERT INTO rulebooks'''
+        cursor = self.connection.cursor()
+        cursor.execute('''
+            INSERT INTO rulebooks (user_id, rulebook_name, rulebooks_description, ability_scores, alignments, 
+                       backgrounds, classes, conditions, damage_types, equipment, equipment_categories, 
+                       feats, features, languages, magic_items, magic_schools, monsters, 
+                       proficiencies, races, rule_sections, rules, skills, spells, 
+                       subclasses, subraces, traits, weapon_properties)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (rulebook.user_id, rulebook.rulebook_name, rulebook.rulebooks_description, rulebook.ability_scores, rulebook.alignments,
+              rulebook.backgrounds, rulebook.classes, rulebook.conditions, rulebook.damage_types, rulebook.equipment, rulebook.equipment_categories,
+              rulebook.feats, rulebook.features, rulebook.languages, rulebook.magic_items, rulebook.magic_schools, rulebook.monsters,
+              rulebook.proficiencies, rulebook.races, rulebook.rule_sections, rulebook.rules, rulebook. skills, rulebook.spells,
+              rulebook.subclasses, rulebook.subraces, rulebook.traits, rulebook.weapon_properties))
+        self.connection.commit()
+        cursor.close()
+
+    def update_rulebook(self, rulebook:Rulebooks):
+        '''Comando, UPDATE rulebooks'''
+        cursor = self.connection.cursor()
+        cursor.execute('''
+            UPDATE rulebooks
+            SET rulebook_name = ?,
+            SET rulebooks_description = ?,
+                       
+            SET ability_scores = ?, SET alignments = ?, SET backgrounds = ?, 
+            SET classes = ?, SET conditions = ?, SET damage_types = ?, 
+            SET equipment = ?, SET equipment_categories = ?, SET feats = ?, 
+            SET features = ?, SET languages = ?, SET magic_items = ?, 
+            SET magic_schools = ?, SET monsters = ?, SET proficiencies = ?, 
+            SET races = ?, SET rule_sections = ?, SET rules = ?, 
+            SET skills = ?, SET spells = ?, SET subclasses = ?, 
+            SET subraces = ?, SET traits = ?, SET weapon_properties = ? 
+       
+            WHERE id = ?
+        ''', (rulebook.rulebook_name, rulebook.rulebooks_description, rulebook.ability_scores, rulebook.alignments,
+              rulebook.backgrounds, rulebook.classes, rulebook.conditions, rulebook.damage_types, rulebook.equipment, rulebook.equipment_categories,
+              rulebook.feats, rulebook.features, rulebook.languages, rulebook.magic_items, rulebook.magic_schools, rulebook.monsters,
+              rulebook.proficiencies, rulebook.races, rulebook.rule_sections, rulebook.rules, rulebook. skills, rulebook.spells,
+              rulebook.subclasses, rulebook.subraces, rulebook.traits, rulebook.weapon_properties, rulebook.object_id))
+        self.connection.commit()
+        cursor.close()
+
+    def delete_rulebook(self, object_id):
+        '''Comando, DELETE FROM rulebooks, mediante el id del libro dado.'''
+        cursor = self.connection.cursor()
+        cursor.execute('''DELETE FROM rulebooks WHERE id = ?''', (object_id,))
+        self.connection.commit()
+        cursor.close()
+
+
+    def get_id_rulebook(self, object_id):
+        '''Comando, SELECT FROM rulebooks, mediante el id dado.'''
+        cursor = self.connection.cursor()
+        cursor.execute('''SELECT FROM rulebooks WHERE id = ?''', (object_id))
+
+        # Lo convierte y lo devuelve.
+        rows = cursor.fetchall()
+        cursor.close()
+
+        if rows is []:
+            return None
+
+        return [Rulebooks(row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],
+                          row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],
+                          row[19],row[20],row[21],row[22],row[23],row[24],row[25],row[26],row[27], row[1], row[0]) for row in rows]
+    
+    def get_user_rulebooks(self, user_id):
+        '''Comando, SELECT FROM rulebooks, mediante el id del user dado.'''
+        cursor = self.connection.cursor()
+        cursor.execute('''SELECT FROM rulebooks WHERE user_id = ?''', (user_id))
+
+        # Los convierte y los devuelve como una lista.
+        rows = cursor.fetchall()
+        cursor.close()
+
+        if rows is []:
+            return None
+
+        return [Rulebooks(row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],
+                          row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],
+                          row[19],row[20],row[21],row[22],row[23],row[24],row[25],row[26],row[27], row[1], row[0]) for row in rows]
+
+    def get_all_rulebooks(self):
+        '''Comando, SELECT * FROM rulebooks'''
+        cursor = self.connection.cursor()
+        cursor.execute('''SELECT * FROM rulebooks''')
+
+        # Los convierte y los devuelve como una lista.
+        rows = cursor.fetchall()
+        cursor.close()
+
+        if rows is []:
+            return None
+
+        return [Rulebooks(row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],
+                          row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],
+                          row[19],row[20],row[21],row[22],row[23],row[24],row[25],row[26],row[27], row[1], row[0]) for row in rows]
+
+
 
     '''
     #####  #     #    #    ######     #     #####  ####### ####### ######   #####  
@@ -356,7 +424,7 @@ class DatabaseManager:
         cursor = self.connection.cursor()
         cursor.execute('''
             INSERT INTO characters (
-                user_id, name, race_index, subrace_index, class_index, level, subclass_index,
+                user_id, name, race_index, subrace_index, class_index, subclass_index, level, 
                 hit_points, background_index, background_story, alignment
             )
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -366,8 +434,8 @@ class DatabaseManager:
             character.race_index,
             character.subrace_index,
             character.class_index,
-            character.level,
             character.subclass_index,
+            character.level,
             character.hit_points,
             character.background_index,
             character.background_story,
@@ -391,8 +459,8 @@ class DatabaseManager:
             character.race_index,
             character.subrace_index,
             character.class_index,
-            character.level,
             character.subclass_index,
+            character.level,
             character.hit_points,
             character.background_index,
             character.background_story,
@@ -426,8 +494,8 @@ class DatabaseManager:
             race_index=row[3],
             subrace_index=row[4],
             class_index=row[5],
-            level=row[6],
-            subclass_index=row[7],
+            subclass_index=row[6],
+            level=row[7],
             hit_points=row[8],
             background_index=row[9],
             background_story=row[10],
@@ -451,8 +519,8 @@ class DatabaseManager:
                 race_index=row[3],
                 subrace_index=row[4],
                 class_index=row[5],
-                level=row[6],
-                subclass_index=row[7],
+                subclass_index=row[6],
+                level=row[7],
                 hit_points=row[8],
                 background_index=row[9],
                 background_story=row[10],
@@ -479,8 +547,8 @@ class DatabaseManager:
                 race_index=row[3],
                 subrace_index=row[4],
                 class_index=row[5],
-                level=row[6],
-                subclass_index=row[7],
+                subclass_index=row[6],
+                level=row[7],
                 hit_points=row[8],
                 background_index=row[9],
                 background_story=row[10],
@@ -856,386 +924,237 @@ class DatabaseManager:
             for row in rows
         ]
 
-    '''
-    ######  #     # #       ####### ######  ####### ####### #    #  #####  
-    #     # #     # #       #       #     # #     # #     # #   #  #     # 
-    #     # #     # #       #       #     # #     # #     # #  #   #       
-    ######  #     # #       #####   ######  #     # #     # ###     #####  
-    #   #   #     # #       #       #     # #     # #     # #  #         # 
-    #    #  #     # #       #       #     # #     # #     # #   #  #     # 
-    #     #  #####  ####### ####### ######  ####### ####### #    #  #####  
-    '''
-
-    def add_rulebook(self, rulebook:Rulebooks):
-        '''Coamndo, SQL INSERT INTO rulebooks'''
-        cursor = self.connection.cursor()
-        cursor.execute('''
-            INSERT INTO rulebooks (user_id, rulebook_name, rulebooks_description, ability_scores, alignments, 
-                       backgrounds, classes, conditions, damage_types, equipment, equipment_categories, 
-                       feats, features, languages, magic_items, magic_schools, monsters, 
-                       proficiencies, races, rule_sections, rules, skills, spells, 
-                       subclasses, subraces, traits, weapon_properties)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (rulebook.user_id, rulebook.rulebook_name, rulebook.rulebooks_description, rulebook.ability_scores, rulebook.alignments,
-              rulebook.backgrounds, rulebook.classes, rulebook.conditions, rulebook.damage_types, rulebook.equipment, rulebook.equipment_categories,
-              rulebook.feats, rulebook.features, rulebook.languages, rulebook.magic_items, rulebook.magic_schools, rulebook.monsters,
-              rulebook.proficiencies, rulebook.races, rulebook.rule_sections, rulebook.rules, rulebook. skills, rulebook.spells,
-              rulebook.subclasses, rulebook.subraces, rulebook.traits, rulebook.weapon_properties))
-        self.connection.commit()
-        cursor.close()
-
-    def update_rulebook(self, rulebook:Rulebooks):
-        '''Comando, UPDATE rulebooks'''
-        cursor = self.connection.cursor()
-        cursor.execute('''
-            UPDATE rulebooks
-            SET rulebook_name = ?,
-            SET rulebooks_description = ?,
-                       
-            SET ability_scores = ?, SET alignments = ?, SET backgrounds = ?, 
-            SET classes = ?, SET conditions = ?, SET damage_types = ?, 
-            SET equipment = ?, SET equipment_categories = ?, SET feats = ?, 
-            SET features = ?, SET languages = ?, SET magic_items = ?, 
-            SET magic_schools = ?, SET monsters = ?, SET proficiencies = ?, 
-            SET races = ?, SET rule_sections = ?, SET rules = ?, 
-            SET skills = ?, SET spells = ?, SET subclasses = ?, 
-            SET subraces = ?, SET traits = ?, SET weapon_properties = ? 
-       
-            WHERE id = ?
-        ''', (rulebook.rulebook_name, rulebook.rulebooks_description, rulebook.ability_scores, rulebook.alignments,
-              rulebook.backgrounds, rulebook.classes, rulebook.conditions, rulebook.damage_types, rulebook.equipment, rulebook.equipment_categories,
-              rulebook.feats, rulebook.features, rulebook.languages, rulebook.magic_items, rulebook.magic_schools, rulebook.monsters,
-              rulebook.proficiencies, rulebook.races, rulebook.rule_sections, rulebook.rules, rulebook. skills, rulebook.spells,
-              rulebook.subclasses, rulebook.subraces, rulebook.traits, rulebook.weapon_properties, rulebook.object_id))
-        self.connection.commit()
-        cursor.close()
-
-    def delete_rulebook(self, object_id):
-        '''Comando, DELETE FROM rulebooks, mediante el id del libro dado.'''
-        cursor = self.connection.cursor()
-        cursor.execute('''DELETE FROM rulebooks WHERE id = ?''', (object_id,))
-        self.connection.commit()
-        cursor.close()
-
-
-    def get_id_rulebook(self, object_id):
-        '''Comando, SELECT FROM rulebooks, mediante el id dado.'''
-        cursor = self.connection.cursor()
-        cursor.execute('''SELECT FROM rulebooks WHERE id = ?''', (object_id))
-
-        # Lo convierte y lo devuelve.
-        rows = cursor.fetchall()
-        cursor.close()
-
-        if rows is []:
-            return None
-
-        return [Rulebooks(row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],
-                          row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],
-                          row[19],row[20],row[21],row[22],row[23],row[24],row[25],row[26],row[27], row[1], row[0]) for row in rows]
-    
-    def get_user_rulebooks(self, user_id):
-        '''Comando, SELECT FROM rulebooks, mediante el id del user dado.'''
-        cursor = self.connection.cursor()
-        cursor.execute('''SELECT FROM rulebooks WHERE user_id = ?''', (user_id))
-
-        # Los convierte y los devuelve como una lista.
-        rows = cursor.fetchall()
-        cursor.close()
-
-        if rows is []:
-            return None
-
-        return [Rulebooks(row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],
-                          row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],
-                          row[19],row[20],row[21],row[22],row[23],row[24],row[25],row[26],row[27], row[1], row[0]) for row in rows]
-
-    def get_all_rulebooks(self):
-        '''Comando, SELECT * FROM rulebooks'''
-        cursor = self.connection.cursor()
-        cursor.execute('''SELECT * FROM rulebooks''')
-
-        # Los convierte y los devuelve como una lista.
-        rows = cursor.fetchall()
-        cursor.close()
-
-        if rows is []:
-            return None
-
-        return [Rulebooks(row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],
-                          row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],
-                          row[19],row[20],row[21],row[22],row[23],row[24],row[25],row[26],row[27], row[1], row[0]) for row in rows]
-
-'''
- #####    #######  ######   ##   ##    ####
-  ## ##    ##   #   ##  ##  ##   ##   ##  ##
-  ##  ##   ## #     ##  ##  ##   ##  ##
-  ##  ##   ####     #####   ##   ##  ##
-  ##  ##   ## #     ##  ##  ##   ##  ##  ###
-  ## ##    ##   #   ##  ##  ##   ##   ##  ##
- #####    #######  ######    #####     #####
-'''
-
-class Debug():
-
-    def __init__(self):
-        self.db = DatabaseManager()
-
-    def close(self):
-        self.db.close()
-
-    def seed_users(self):
-        users = [
-            Users("admin", "admin@cds.com", "admin123"),
-            Users("player1", "player1@cds.com", "player123"),
-            Users("player2", "player2@cds.com", "player123")
-        ]
-
-        for user in users:
-            self.db.add_user(user)
-
-
-    def seed_characters(self):
-        characters = [
-            Characters(
-                user_id=1,
-                name="Thorin",
-                race_index="dwarf",
-                subrace_index="hill-dwarf",
-                class_index="barbarian",
-                level=3,
-                subclass_index=None,
-                hit_points=38,
-                background_index="soldier",
-                background_story="Veterano de mil batallas",
-                alignment="Lawful Neutral"
-            ),
-            Characters(
-                user_id=1,
-                name="Eldrin",
-                race_index="elf",
-                subrace_index="",
-                class_index="wizard",
-                level=5,
-                subclass_index="school-of-evocation",
-                hit_points=26,
-                background_index="sage",
-                background_story="Estudioso arcano",
-                alignment="Neutral Good"
-            )
-        ]
-
-        for character in characters:
-            self.db.add_character(character)
-
-    def seed_character_stats(self):
-        stats = [
-            Character_stats(16, 14, 15, 8, 10, 12, 1),
-            Character_stats(8, 14, 12, 18, 13, 10, 2)
-        ]
-
-        for stat in stats:
-            self.db.add_character_stats(stat)
-
-    def seed_character_spells(self):
-        spells = [
-            (2, "fireball"),
-            (2, "magic-missile")
-        ]
-
-        for character_id, spell_index in spells:
-            self.db.add_character_spell(character_id, spell_index)
-
-    def seed_character_feats(self):
-        feats = [
-            (1, "great-weapon-master"),
-            (2, "war-caster")
-        ]
-
-        for character_id, feat_index in feats:
-            self.db.add_character_feat(character_id, feat_index)
-
-    def seed_character_equipment(self):
-        equipment = [
-            (1, "greataxe", 1),
-            (1, "explorers-pack", 1),
-            (2, "spellbook", 1)
-        ]
-
-        for character_id, equipment_index, quantity in equipment:
-            self.db.add_character_equipment(character_id, equipment_index, quantity)
-
-
-    def seed_campaigns(self):
-        campaigns = [
-            Campaigns("La mina perdida", "Exploración de ruinas antiguas", 1),
-            Campaigns("Sombras del norte", "Amenaza creciente", 2)
-        ]
-
-        for campaign in campaigns:
-            self.db.add_campaign(campaign)
-
-    def seed_campaign_characters(self):
-        c1 = Campaign_characters (
-            health_points=34, 
-            notes="100 - Gold", 
-            campaign_id=1,
-            character_id=1)
-        c2 = Campaign_characters (
-            health_points=26, 
-            notes="Spellbook and backpack",
-            campaign_id=1,
-            character_id=2)
-        campaign_characters = [c1,c2]
-
-        for char in campaign_characters:
-            self.db.add_campaign_character(char.campaign_id, char.character_id, char.health_points, char.notes)
-
-
-    def seed_rulebooks(self):
-        rulebooks = [
-            Rulebooks(
-                user_id=1,
-                rulebook_name="Prueba",
-                rulebooks_description= "Ejemplo"
-            )
-        ]
-
-        for rulebook in rulebooks:
-            self.db.add_rulebook(rulebook)
-
-
-    def seed_all(self):
-        self.seed_users()
-        self.seed_characters()
-        self.seed_character_stats()
-        self.seed_character_spells()
-        self.seed_character_feats()
-        self.seed_character_equipment()
-        self.seed_campaigns()
-        self.seed_campaign_characters()
-        self.seed_rulebooks()
-
-
-    '''-----------------------------------------------------------------------'''
-
-    def test_users(self):
-            data:list = self.db.get_all_users()
-            for u in data:
-                u:Users
-                print (f'{u.object_id} - {u.username} - {u.mail} - {u.password}') 
-            print ("-" * 40)
-            print ()
-
-    def test_characters(self):
-            data:list = self.db.get_all_characters()
-            for u in data:
-                u:Characters
-                print (f'{u.object_id} - {u.name}')
-
-                print (f'\nStats')
-                carac1:Character_stats = self.db.get_character_stats(u.object_id)
-                print (f' -FUE {carac1.str_stat}\n -DEX {carac1.dex_stat}\n -CON {carac1.con_stat}\n -SAB {carac1.wis_stat}\n -INT {carac1.int_stat}\n -CHA {carac1.cha_stat}')
-
-                print (f'\nOther')
-                print (f' -Raza {u.race_index}\n -SubRace {u.subrace_index}\n -Class {u.class_index}\n -SubClass {u.subclass_index}\n -Lvl {u.level}\n -Back {u.background_index}')
-
-                print (f'\nSpells')
-                carac2:list = self.db.get_character_spells(u.object_id)
-                for x2 in carac2:
-                    x2:Character_spells
-                    print (f' -{x2.spell_index}')
-
-                print (f'\nFeats')
-                carac3:list = self.db.get_character_feats(u.object_id) 
-                for x3 in carac3:
-                    x3:Character_feats
-                    print (f' -{x3.feat_index}')
-
-                print (f'\nEquip')
-                carac4:list = self.db.get_character_equipment(u.object_id) 
-                for x4 in carac4:
-                    x4:Character_equipment
-                    print (f' -{x4.equipment_index} {x4.quantity}')
-                print ("/" * 40)
-                print ()
-            print ("-" * 40)
-            print ()
-        
-    def test_campaigns(self):
-            data:list = self.db.get_all_campaigns()
-            for u in data:
-                u:Campaigns
-                print (f'{u.object_id} - {u.name}')
-                camp = self.db.get_campaign_characters(u.object_id)
-
-                for c in camp:
-                    c:Campaign_characters
-                    ch:Characters = self.db.get_character(c.character_id)
-                    print (f'{ch.name} |{c.character_id}| hp:{c.health_points} - nt:{c.notes}\n')
-                print ("/" * 40)
-                print ()
-            print ("-" * 40)
-            print ()
-
-    def test_rulebooks(self):
-            data:list = self.db.get_all_rulebooks()
-            for u in data:
-                u:Rulebooks
-                print (f'{u.object_id} - {u.rulebook_name}')
-            print ("-" * 40)
-            print ()
-
-    def dispaly_all(self):
-        self.test_users()
-        self.test_characters()
-        self.test_campaigns()
-        self.test_rulebooks()
-
 # DEBUG, Inicia la db y permite realizar acciones aisladas tales como añadir o eliminar datos de prueba
 if __name__ == "__main__":
+    '''
+    #####    #######  ######   ##   ##    ####
+    ## ##    ##   #   ##  ##  ##   ##   ##  ##
+    ##  ##   ## #     ##  ##  ##   ##  ##
+    ##  ##   ####     #####   ##   ##  ##
+    ##  ##   ## #     ##  ##  ##   ##  ##  ###
+    ## ##    ##   #   ##  ##  ##   ##   ##  ##
+    #####    #######  ######    #####     #####
+    '''
+
+    class Debug():
+
+        def __init__(self):
+            self.db = DatabaseManager()
+
+        def close(self):
+            self.db.close()
+
+        def seed_users(self):
+            users = [
+                Users("admin", "admin@cds.com", "admin123"),
+                Users("player1", "player1@cds.com", "player123"),
+                Users("player2", "player2@cds.com", "player123")
+            ]
+
+            for user in users:
+                self.db.add_user(user)
+
+
+        def seed_characters(self):
+            characters = [
+                Characters(
+                    user_id=1,
+                    name="Thorin",
+                    race_index="dwarf",
+                    subrace_index="hill-dwarf",
+                    class_index="barbarian",
+                    level=3,
+                    subclass_index=None,
+                    hit_points=38,
+                    background_index="soldier",
+                    background_story="Veterano de mil batallas",
+                    alignment="Lawful Neutral"
+                ),
+                Characters(
+                    user_id=1,
+                    name="Eldrin",
+                    race_index="elf",
+                    subrace_index="",
+                    class_index="wizard",
+                    level=5,
+                    subclass_index="school-of-evocation",
+                    hit_points=26,
+                    background_index="sage",
+                    background_story="Estudioso arcano",
+                    alignment="Neutral Good"
+                )
+            ]
+
+            for character in characters:
+                self.db.add_character(character)
+
+        def seed_character_stats(self):
+            stats = [
+                Character_stats(16, 14, 15, 8, 10, 12, 1),
+                Character_stats(8, 14, 12, 18, 13, 10, 2)
+            ]
+
+            for stat in stats:
+                self.db.add_character_stats(stat)
+
+        def seed_character_spells(self):
+            spells = [
+                (2, "fireball"),
+                (2, "magic-missile")
+            ]
+
+            for character_id, spell_index in spells:
+                self.db.add_character_spell(character_id, spell_index)
+
+        def seed_character_feats(self):
+            feats = [
+                (1, "great-weapon-master"),
+                (2, "war-caster")
+            ]
+
+            for character_id, feat_index in feats:
+                self.db.add_character_feat(character_id, feat_index)
+
+        def seed_character_equipment(self):
+            equipment = [
+                (1, "greataxe", 1),
+                (1, "explorers-pack", 1),
+                (2, "spellbook", 1)
+            ]
+
+            for character_id, equipment_index, quantity in equipment:
+                self.db.add_character_equipment(character_id, equipment_index, quantity)
+
+
+        def seed_campaigns(self):
+            campaigns = [
+                Campaigns("La mina perdida", "Exploración de ruinas antiguas", 1),
+                Campaigns("Sombras del norte", "Amenaza creciente", 2)
+            ]
+
+            for campaign in campaigns:
+                self.db.add_campaign(campaign)
+
+        def seed_campaign_characters(self):
+            c1 = Campaign_characters (
+                health_points=34, 
+                notes="100 - Gold", 
+                campaign_id=1,
+                character_id=1)
+            c2 = Campaign_characters (
+                health_points=26, 
+                notes="Spellbook and backpack",
+                campaign_id=1,
+                character_id=2)
+            campaign_characters = [c1,c2]
+
+            for char in campaign_characters:
+                self.db.add_campaign_character(char.campaign_id, char.character_id, char.health_points, char.notes)
+
+
+        def seed_rulebooks(self):
+            rulebooks = [
+                Rulebooks(
+                    user_id=1,
+                    rulebook_name="Prueba",
+                    rulebooks_description= "Ejemplo"
+                )
+            ]
+
+            for rulebook in rulebooks:
+                self.db.add_rulebook(rulebook)
+
+
+        def seed_all(self):
+            self.seed_users()
+            self.seed_characters()
+            self.seed_character_stats()
+            self.seed_character_spells()
+            self.seed_character_feats()
+            self.seed_character_equipment()
+            self.seed_campaigns()
+            self.seed_campaign_characters()
+            self.seed_rulebooks()
+
+
+        '''-----------------------------------------------------------------------'''
+
+        def test_users(self):
+                data:list = self.db.get_all_users()
+                for u in data:
+                    u:Users
+                    print (f'{u.object_id} - {u.username} - {u.mail} - {u.password}') 
+                print ("-" * 40)
+                print ()
+
+        def test_characters(self):
+                data:list = self.db.get_all_characters()
+                for u in data:
+                    u:Characters
+                    print (f'{u.object_id} - {u.name}')
+
+                    print (f'\nStats')
+                    carac1:Character_stats = self.db.get_character_stats(u.object_id)
+                    print (f' -FUE {carac1.str_stat}\n -DEX {carac1.dex_stat}\n -CON {carac1.con_stat}\n -SAB {carac1.wis_stat}\n -INT {carac1.int_stat}\n -CHA {carac1.cha_stat}')
+
+                    print (f'\nOther')
+                    print (f' -Raza {u.race_index}\n -SubRace {u.subrace_index}\n -Class {u.class_index}\n -SubClass {u.subclass_index}\n -Lvl {u.level}\n -Back {u.background_index}')
+
+                    print (f'\nSpells')
+                    carac2:list = self.db.get_character_spells(u.object_id)
+                    for x2 in carac2:
+                        x2:Character_spells
+                        print (f' -{x2.spell_index}')
+
+                    print (f'\nFeats')
+                    carac3:list = self.db.get_character_feats(u.object_id) 
+                    for x3 in carac3:
+                        x3:Character_feats
+                        print (f' -{x3.feat_index}')
+
+                    print (f'\nEquip')
+                    carac4:list = self.db.get_character_equipment(u.object_id) 
+                    for x4 in carac4:
+                        x4:Character_equipment
+                        print (f' -{x4.equipment_index} {x4.quantity}')
+                    print ("/" * 40)
+                    print ()
+                print ("-" * 40)
+                print ()
+            
+        def test_campaigns(self):
+                data:list = self.db.get_all_campaigns()
+                for u in data:
+                    u:Campaigns
+                    print (f'{u.object_id} - {u.name}')
+                    camp = self.db.get_campaign_characters(u.object_id)
+
+                    for c in camp:
+                        c:Campaign_characters
+                        ch:Characters = self.db.get_character(c.character_id)
+                        print (f'{ch.name} |{c.character_id}| hp:{c.health_points} - nt:{c.notes}\n')
+                    print ("/" * 40)
+                    print ()
+                print ("-" * 40)
+                print ()
+
+        def test_rulebooks(self):
+                data:list = self.db.get_all_rulebooks()
+                for u in data:
+                    u:Rulebooks
+                    print (f'{u.object_id} - {u.rulebook_name}')
+                print ("-" * 40)
+                print ()
+
+        def dispaly_all(self):
+            self.test_users()
+            self.test_characters()
+            self.test_campaigns()
+            self.test_rulebooks()
+
+
+
+
+            
     db = DatabaseManager()
-    dg = Debug()
-    
-    #db.delete_all()
-    #db.create_tables()
-    #dg.seed_all()
-    #dg.dispaly_all()
-
-    #db.create_table_users()
-    #dg.seed_users()
-    #dg.test_users()
-
-    #--------------------
-    #db.create_table_characters()
-    #db.create_table_character_stats()
-    #db.create_table_character_spells()
-    #db.create_table_character_feats()
-    #db.create_table_character_equipment()
-
-    #dg.seed_characters()
-    #dg.seed_character_stats()
-    #dg.seed_character_spells()
-    #dg.seed_character_feats()
-    #dg.seed_character_equipment()
-    
-    #dg.test_characters()
-
-    #--------------------
-    #db.create_table_campaigns()
-    #db.create_table_campaign_characters()
-
-    #dg.seed_campaigns()
-    #dg.seed_campaign_characters()
-
-    #dg.test_campaigns()
-
-    #--------------------
-
-    #db.create_table_rulebooks()
-    #dg.seed_rulebooks()
-    #dg.test_rulebooks()
-
-    from api_2014 import  DnDAPI
-    api = DnDAPI()
-    print(f'{api.get_background("acolyte")}')
+    print(db.get_all_users()[0].mail)

@@ -1,0 +1,68 @@
+
+
+
+                      
+
+
+QTabWidget::pane {
+    border: 1px solid #444;
+}
+
+QTabBar::tab {
+    padding: 8px;
+    border-radius: 4px;
+}
+
+QTabBar::tab:selected {
+    background: #8b5cf6;
+    color: white;
+}
+
+
+
+
+
+
+
+QMainWindow {
+    border-image: url(utils/background.png) 0 0 0 0 stretch stretch;
+}
+
+QWidget {
+    font-family: Segoe UI;      
+    font-size: 14px;
+    color: #e5e7eb;
+}
+
+QPushButton {
+    border-image: url(utils/btn_label_bg.png) 0 0 0 0 stretch stretch;
+    border: 1px solid #666;
+    padding: 6px;
+    border-radius: 4px;
+}
+
+QPushButton:hover {
+    border-image: url(utils/input_bg.png) 0 0 0 0 stretch stretch;
+    font-weight: bold;
+    color: black;
+}
+
+#logo_inicio {
+    background-image: url(utils/btn_label_bg.png) 0 0 0 0 stretch stretch;
+}
+
+QLineEdit {
+    background: rgba(0, 0, 0, 0.6);
+    border-color: rgba(255, 215, 0, 0.6);
+    border-radius: 25%;
+    border: 5px;
+}
+
+* {
+    background-color: transparent;
+    background: transparent;
+    
+    font-family: Segoe UI;
+    font-size: 14px;
+    color: #e5e7eb;
+}

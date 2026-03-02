@@ -1,4 +1,4 @@
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QPixmap, QPainter
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QScrollArea
@@ -12,15 +12,19 @@ class HomeWidget(QScrollArea):
         widget = QWidget()
         layout = QVBoxLayout()
 
-        titulo = QLabel("Character Dungeon Stats")
-        titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        titulo.setStyleSheet("font-size: 40px; font-weight: bold;")
-        layout.addWidget(titulo)
-
         label = QLabel()
         pixmap = QPixmap('utils/log.png')
-        pixmap = pixmap.scaled(600, 600, Qt.AspectRatioMode.KeepAspectRatio)
-        label.setPixmap(pixmap)
+        pixmap = pixmap.scaled(580, 580, Qt.AspectRatioMode.KeepAspectRatio)
+
+        result_pixmap = QPixmap(pixmap.size())
+        result_pixmap.fill(Qt.GlobalColor.transparent)
+        
+        painter = QPainter(result_pixmap)
+        painter.setOpacity(0.5)
+        painter.drawPixmap(0, 0, pixmap)
+        painter.end()
+
+        label.setPixmap(result_pixmap)
         layout.addWidget(label)
         
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
