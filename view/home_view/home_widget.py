@@ -20,7 +20,7 @@ class HomeWidget(QScrollArea):
         result_pixmap.fill(Qt.GlobalColor.transparent)
         
         painter = QPainter(result_pixmap)
-        painter.setOpacity(0.5)
+        painter.setOpacity(0.75)
         painter.drawPixmap(0, 0, pixmap)
         painter.end()
 

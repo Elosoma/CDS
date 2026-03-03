@@ -50,13 +50,13 @@ class ViewWidget(QWidget):
 
         # Botón login.
         self.btn_login = QPushButton("Login")
-        self.btn_login.setMaximumSize(250, 30)
+        self.btn_login.setMaximumSize(250, 100)
         self.btn_login.clicked.connect(self.login_check)
         layout.addRow(self.btn_login)
 
         # Botón registrar.
         self.btn_change = QPushButton("Sign in")
-        self.btn_change.setMaximumSize(250, 30)
+        self.btn_change.setMaximumSize(250, 100)
         self.btn_change.clicked.connect(self.toggle_layout)
         layout.addRow(self.btn_change)
 
@@ -88,13 +88,13 @@ class ViewWidget(QWidget):
 
         # Botón login.
         self.btn_signup = QPushButton("Sign in")
-        self.btn_signup.setMaximumSize(250, 30)
+        self.btn_signup.setMaximumSize(250, 100)
         self.btn_signup.clicked.connect(self.signin_check)
         layout.addRow(self.btn_signup)
 
         # Botón registrar.
         self.btn_logup = QPushButton("Login")
-        self.btn_logup.setMaximumSize(250, 30)
+        self.btn_logup.setMaximumSize(250, 100)
         self.btn_logup.clicked.connect(self.toggle_layout)
         layout.addRow(self.btn_logup)
 
