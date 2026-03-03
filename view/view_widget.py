@@ -26,7 +26,6 @@ class ViewWidget(QWidget):
         self.build_ui()
 
     def build_ui(self):
-        self.parent_tab.resize(400, 400)
         layout = QFormLayout()
     
         '''Construlle la interfaz del formulario de inicio de sesión'''
@@ -116,6 +115,8 @@ class ViewWidget(QWidget):
         main_v.addStretch()
 
         self.setLayout(main_v)
+        self.parent_tab.move(500,300)
+        self.parent_tab.resize(400, 400)
 
     def toggle_layout(self):
         self.passwordin.setEchoMode(QLineEdit.EchoMode.Password)
@@ -220,18 +221,37 @@ class ViewWidget(QWidget):
         self.passwordin.setEchoMode(QLineEdit.EchoMode.Password)
  
     def loged(self, user_id):
-        view_widget = UserView(self.api, self.db, user_id)
+        view_widget = UserView(self.api, self.db, self.parent_tab, user_id)
         self.parent_tab.setWindowTitle("CDS")
         self.parent_tab.setCentralWidget(view_widget)
         self.parent_tab.resize(1000, 750)
 
 
 class UserView(QTabWidget):
-    def __init__(self, api, db, current_user = 1):
+    def __init__(self, api, db, parent, current_user = 1):
         super().__init__()
+        self.parent_tab = parent
 
         self.addTab(HomeWidget(), "Home")
         self.addTab(CharacterTab(db,api, current_user), "Characters")
         self.addTab(CampaignWidget(db, current_user), "Campaigns")
         self.addTab(ContentWidget(api), "Content")
-        #self.addTab(RulebooksWidget(db, current_user), "Rulebooks")  
+        self.addTab(QWidget(), "Log off")
+
+        self.parent_tab.move(300,100)
+        self.currentChanged.connect(self.on_tab_changed)
+
+    def on_tab_changed(self, index):
+        '''Salir de la app'''
+        if index == 4:
+            reply = QMessageBox.question(
+                self,
+                "Log out?",
+                "Are you sure you want to log out?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+
+            if reply == QMessageBox.StandardButton.Yes:
+                self.parent_tab.setCentralWidget(ViewWidget(self.parent_tab))
+            else:
+                self.setCurrentIndex(0)

@@ -2,7 +2,7 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout,QListWidget, 
-    QPushButton, QListWidgetItem, QLineEdit
+    QPushButton, QListWidgetItem, QLineEdit, QHBoxLayout
 )
 
 from model import DatabaseManager
@@ -17,18 +17,28 @@ class CharacterList(QWidget):
         self.parent_tab = parent
 
         layout = QVBoxLayout()
+        layouth = QHBoxLayout()
+        widget = QWidget()
 
+        # Buscador
         self.buscador = QLineEdit()
-        self.buscador.setPlaceholderText("Buscar nombre...")
-        layout.addWidget(self.buscador)
+        self.buscador.setPlaceholderText("🔎 Buscar nombre...")
+        layouth.addWidget(self.buscador)
 
+        # Nuevo personaje
+        self.new_btn = QPushButton("➕ New Character")
+        self.new_btn.clicked.connect(self.new_character)
+        self.new_btn.setMinimumSize(225, 30)
+        self.new_btn.setMaximumSize(250, 40)
+        layouth.addWidget(self.new_btn)
+
+        widget.setLayout(layouth)
+        layout.addWidget(widget)
+
+        # Lista de personajes
         self.list = QListWidget()
         self.list.itemDoubleClicked.connect(self.open_character)
         layout.addWidget(self.list)
-
-        self.new_btn = QPushButton("➕ New character")
-        self.new_btn.clicked.connect(self.new_character)
-        layout.addWidget(self.new_btn)
 
         self.buscador.textChanged.connect(self.search_bar)
         self.setLayout(layout)

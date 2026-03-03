@@ -140,10 +140,11 @@ class CampaignDetail(QWidget):
     def add_character(self):
         '''Desplega una pestaña para añadir personajes nuevos'''
         characters = self.db.get_user_characters(self.parent_tab.user)
-
+        
         names = [c.name for c in characters]
+        names_sorted = sorted(names)
         name, ok = QInputDialog.getItem(
-            self, "Add character", "Character:", names, 0, False
+            self, "Add character", "Character:", names_sorted, 0, False
         )
 
         if ok:

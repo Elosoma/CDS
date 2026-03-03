@@ -46,7 +46,10 @@ class DnDAPI:
         return self._get(f"/subclasses/{class_index}/levels")
     
     def get_subclass_level(self, class_index: str, level: int):
-        return self._get(f"/subclasses/{class_index}/levels/{level}")
+        try:
+            return self._get(f"/subclasses/{class_index}/levels/{level}")
+        except:
+            return ""
 
 
     # RAZAS : races, subraces

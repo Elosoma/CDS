@@ -9,8 +9,8 @@ class Application(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowIcon(QIcon('utils/log.png'))
-        self.explorer = ViewWidget(self)
-        self.setCentralWidget(self.explorer)
+        self.init = ViewWidget(self)
+        self.setCentralWidget(self.init)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

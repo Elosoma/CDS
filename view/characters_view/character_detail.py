@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QMessageBox,
-    QPushButton, QTextEdit, QHBoxLayout
+    QPushButton, QTextEdit, QHBoxLayout, QTabWidget
 )
 
 from controller import LoadCharacterSheet
@@ -14,9 +14,11 @@ class CharacterDetail(QWidget):
         self.api = parent.api
         self.parent_tab = parent
         self.character_id = None
-
-        self.text = QTextEdit()
-        self.text.setReadOnly(True)
+        
+        self.tabs = QTabWidget()
+        self.tabs.addTab(self.general_tab(), "General")
+        self.tabs.addTab(self.class_tab(), "Class")
+        self.tabs.addTab(self.race_tab(), "Race")
 
         self.edit_btn = QPushButton("✏️ Edit")
         self.delete_btn = QPushButton("🗑️ Delete")
@@ -32,22 +34,57 @@ class CharacterDetail(QWidget):
         buttons.addWidget(self.back_btn)
 
         layout = QVBoxLayout()
-        layout.addWidget(self.text)
+        layout.addWidget(self.tabs)
         layout.addLayout(buttons)
         self.setLayout(layout)
 
     def load_character(self, character_id):
         self.character_id = character_id
         character = self.db.get_character(character_id)
-        sheet = LoadCharacterSheet(self.db, self.api, character_id)
+        self.sheet = LoadCharacterSheet(self.db, self.api, character_id)
 
         if not character:
-            self.text.setPlainText("")
+            self.general_text.setPlainText("Eror, personaje no existente.")
+            self.class_text.setPlainText("")
+            self.race_text.setPlainText("")
             return
 
-        self.text.clear()
-        lines = sheet.get_main_format()
-        self.text.setPlainText(lines)
+        self.general_text.setPlainText(self.sheet.get_main_format())
+        self.class_text.setPlainText(self.sheet.get_classlvl_format())
+        self.race_text.setPlainText(self.sheet.get_racial_format())
+
+    def general_tab(self):
+        layout = QVBoxLayout()
+        widget = QWidget()
+
+        self.general_text = QTextEdit()
+        self.general_text.setReadOnly(True)
+        layout.addWidget(self.general_text)
+
+        widget.setLayout(layout)
+        return widget
+    
+    def class_tab(self):
+        layout = QVBoxLayout()
+        widget = QWidget()
+
+        self.class_text = QTextEdit()
+        self.class_text.setReadOnly(True)
+        layout.addWidget(self.class_text)
+
+        widget.setLayout(layout)
+        return widget
+    
+    def race_tab(self):
+        layout = QVBoxLayout()
+        widget = QWidget()
+        
+        self.race_text = QTextEdit()
+        self.race_text.setReadOnly(True)
+        layout.addWidget(self.race_text)
+
+        widget.setLayout(layout)
+        return widget
     
     def edit_character(self):
         self.parent_tab.show_form(self.character_id)

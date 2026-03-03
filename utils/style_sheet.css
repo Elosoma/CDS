@@ -11,11 +11,10 @@ QTabWidget::pane,QLineEdit,QComboBox,QSpinBox,QTextEdit,QListWidget  {
     border: 1px solid rgba(255, 215, 0, 0.6);}
 
 QTabWidget::pane,QLineEdit,QComboBox,QSpinBox,QTextEdit,QListWidget,QMainWindow,#logo_inicio {
-    background: rgba(0, 0, 0, 0.75);}
+    background: rgba(0, 0, 0, 0.6);}
 
 QLabel {background: transparent;}
 QLineEdit{border-radius: 25%;}
-
 
 QTabBar::tab {
     border-image: url(utils/btn_label_bg.png) 0 0 0 0 stretch stretch;
@@ -28,7 +27,6 @@ QTabBar::tab:selected {
     font-weight: bold;
     color: black;
 }
-
 
 QMainWindow {border-image: url(utils/background.png) 0 0 0 0 stretch stretch;}
 
