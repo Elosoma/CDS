@@ -459,8 +459,8 @@ class DatabaseManager:
             character.race_index,
             character.subrace_index,
             character.class_index,
-            character.subclass_index,
             character.level,
+            character.subclass_index,
             character.hit_points,
             character.background_index,
             character.background_story,
@@ -485,7 +485,7 @@ class DatabaseManager:
         row = cursor.fetchone()
         cursor.close()
 
-        if row is []:
+        if row is None:
             return None
 
         return Characters(
@@ -1157,4 +1157,6 @@ if __name__ == "__main__":
 
             
     db = DatabaseManager()
-    print(db.get_all_users()[0].mail)
+    ch = db.get_all_characters()
+    for f in ch:
+        print(f._print())

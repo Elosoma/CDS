@@ -171,21 +171,18 @@ class CharacterForm(QWidget):
                 return
         
         character = Characters(
-            object_id=self.character_id,
-            user_id=self.parent_tab.user,
             name=self.name.text(),
-
             race_index=self.race.currentData(),
             subrace_index=self.subrace.currentData(),
             class_index=self.char_class.currentData(),
-            subclass_index=self.char_subclass.currentData(),
-
             level=self.spinlvl.value(),
+            subclass_index=self.char_subclass.currentData(),
             hit_points=10,
-
             background_index=self.background.currentData(),
             background_story=self.story.toPlainText(),
-            alignment=self.alignment.currentData()
+            alignment=self.alignment.currentData(),
+            user_id=self.parent_tab.user,
+            object_id=self.character_id
         )
 
         char_stats = Character_stats(

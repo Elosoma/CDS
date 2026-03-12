@@ -123,9 +123,10 @@ class CampaignDetail(QWidget):
 
         for ch in chars:
             char = self.db.get_character(ch.character_id)
-            item = QListWidgetItem(f"{char.name}")
-            item.setData(Qt.ItemDataRole.UserRole, ch.character_id)
-            self.char_list.addItem(item)
+            if char != None:
+                item = QListWidgetItem(f"{char.name}")
+                item.setData(Qt.ItemDataRole.UserRole, ch.character_id)
+                self.char_list.addItem(item)
 
     def load_campaign(self, campaign_id):
         '''Carga la campaña y refresca la lista de personajes'''
